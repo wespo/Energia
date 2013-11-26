@@ -4,8 +4,8 @@
 /// @details	Test of the 4 SPI ports on Stellaris LaunchPad
 /// @n          Works fine on all ports, SPI=SPI2, SPI1, SP0 and SPI3
 ///
-/// @author	reaper7
-/// @date	Jul 08, 2013
+/// @author     reaper7
+/// @date       Jul 08, 2013
 /// @version	101
 ///
 /// @see Based on SPI Master library for Arduino.
@@ -21,6 +21,8 @@
 #define _SPI_H_INCLUDED
 
 // Board check
+
+
 #ifndef __LM4F120H5QR__
 #error Board not supported.
 #endif
@@ -46,34 +48,47 @@ class SPIClass {
 
 private:
 
-	unsigned long slaveSelect;
-	unsigned long SSIModule;	
+	uint8_t slaveSelect;
+
+
+	static uint8_t SSIModule;
 
 public:
 
   SPIClass(void);
-  SPIClass(unsigned long);
+  SPIClass(uint8_t);
   void begin(); // Default
-  void begin(unsigned long);
+  void begin(uint8_t);
   void end();
-  void end(unsigned long);
+  void end(uint8_t);
+
+
 
   void setBitOrder(uint8_t);
-  void setBitOrder(unsigned long, uint8_t);
+  void setBitOrder(uint8_t, uint8_t);
+
   void setDataMode(uint8_t);
 
   void setClockDivider(uint8_t);
 
   uint8_t transfer(uint8_t);
-  uint8_t transfer(unsigned long, uint8_t);
-  uint8_t transfer(unsigned long, uint8_t, uint8_t);
+
+
+  uint8_t transfer(uint8_t, uint8_t);
+  uint8_t transfer(uint8_t, uint8_t, uint8_t);
+
+
 
   // Stellarpad-specific functions
-  void setModule(unsigned long);                // module
-  void setModule(unsigned long, unsigned long); // module, sspin
+  void setModule(uint8_t);                // module
+  void setModule(uint8_t, uint8_t); // module, sspin
+
+
 };
 
 // SPI ports
+
+
 extern SPIClass SPI0;
 extern SPIClass SPI1;
 extern SPIClass SPI2;
@@ -81,5 +96,7 @@ extern SPIClass SPI3;
 
 // default SPI port on LM4F = SPI port 2
 #define SPI SPI2
+
+
 
 #endif

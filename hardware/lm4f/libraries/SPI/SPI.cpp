@@ -25,10 +25,11 @@
 
 //#define NOT_ACTIVE 0xA
 
+
 #define SSIBASE g_ulSSIBase[SSIModule]
 #define SSELPIN g_u8SlaveSelPins[SSIModule]
 
-static const unsigned long g_ulSSIBase[4] =
+static const uint8_t g_ulSSIBase[4] =
 {
     SSI0_BASE, SSI1_BASE, SSI2_BASE, SSI3_BASE
 };
@@ -38,7 +39,7 @@ static const unsigned long g_ulSSIBase[4] =
 // The list of SSI peripherals.
 //
 //*****************************************************************************
-static const unsigned long g_ulSSIPeriph[4] =
+static const uint8_t g_ulSSIPeriph[4] =
 {
     SYSCTL_PERIPH_SSI0, SYSCTL_PERIPH_SSI1,
     SYSCTL_PERIPH_SSI2, SYSCTL_PERIPH_SSI3
@@ -49,22 +50,21 @@ static const unsigned long g_ulSSIPeriph[4] =
 // The list of SSI gpio configurations.
 //
 //*****************************************************************************
-static const unsigned long g_ulSSIConfig[4][4] =
+static const uint8_t g_ulSSIConfig[4][4] =
 {
-  {GPIO_PA2_SSI0CLK, GPIO_PA3_SSI0FSS, GPIO_PA4_SSI0RX, GPIO_PA5_SSI0TX},
-  {GPIO_PF2_SSI1CLK, GPIO_PF3_SSI1FSS, GPIO_PF0_SSI1RX, GPIO_PF1_SSI1TX},
-  {GPIO_PB4_SSI2CLK, GPIO_PB5_SSI2FSS, GPIO_PB6_SSI2RX, GPIO_PB7_SSI2TX},
-  {GPIO_PD0_SSI3CLK, GPIO_PD1_SSI3FSS, GPIO_PD2_SSI3RX, GPIO_PD3_SSI3TX}
-};
+    {GPIO_PA2_SSI0CLK, GPIO_PA3_SSI0FSS, GPIO_PA4_SSI0RX, GPIO_PA5_SSI0TX},
+    {GPIO_PF2_SSI1CLK, GPIO_PF3_SSI1FSS, GPIO_PF0_SSI1RX, GPIO_PF1_SSI1TX},
+    {GPIO_PB4_SSI2CLK, GPIO_PB5_SSI2FSS, GPIO_PB6_SSI2RX, GPIO_PB7_SSI2TX},
+    {GPIO_PD0_SSI3CLK, GPIO_PD1_SSI3FSS, GPIO_PD2_SSI3RX, GPIO_PD3_SSI3TX},};
 
 //*****************************************************************************
 //
 // The list of SSI gpio port bases.
 //
 //*****************************************************************************
-static const unsigned long g_ulSSIPort[4] =
+static const uint8_t g_ulSSIPort[4] =
 {
-  GPIO_PORTA_BASE, GPIO_PORTF_BASE, GPIO_PORTB_BASE, GPIO_PORTD_BASE
+    GPIO_PORTA_BASE, GPIO_PORTF_BASE, GPIO_PORTB_BASE, GPIO_PORTD_BASE
 };
 
 //*****************************************************************************
@@ -72,7 +72,7 @@ static const unsigned long g_ulSSIPort[4] =
 // The list of SSI gpio configurations.
 //
 //*****************************************************************************
-static const unsigned long g_ulSSIPins[4] =
+static const uint8_t g_ulSSIPins[4] =
 {
 	GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5,
 	GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3,
@@ -90,26 +90,29 @@ static const uint8_t g_u8SlaveSelPins[4] =
   PA_3, PF_3, PB_5, PD_1
 };
 
+
 SPIClass::SPIClass(void)
 {
 	SSIModule = BOOST_PACK_SPI;
 	slaveSelect = SSELPIN;
 }
 
-SPIClass::SPIClass(unsigned long module)
+SPIClass::SPIClass(uint8_t module)
 {
 	SSIModule = module;
 	slaveSelect = SSELPIN;
 }
   
-void SPIClass::begin(unsigned long ssPin) {
+void SPIClass::begin(uint8_t ssPin) {
 
-	unsigned long initialData = 0;
+	uint8_t initialData = 0;
 /*
-  if(SSIModule == NOT_ACTIVE) {
-    SSIModule = BOOST_PACK_SPI;
-  }
+
+    if(SSIModule == NOT_ACTIVE) {
+        SSIModule = BOOST_PACK_SPI;
+    }
 */
+
 	ROM_SysCtlPeripheralEnable(g_ulSSIPeriph[SSIModule]);
 	ROM_SSIDisable(SSIBASE);
 	ROM_GPIOPinConfigure(g_ulSSIConfig[SSIModule][0]);
@@ -129,6 +132,7 @@ void SPIClass::begin(unsigned long ssPin) {
 	slaveSelect = ssPin;
 	pinMode(slaveSelect, OUTPUT);
 
+
 	/*
 	 * Default to
 	 * System Clock, SPI_MODE_0, MASTER,
@@ -147,7 +151,7 @@ void SPIClass::begin() {
 	begin(SSELPIN);
 }
 
-void SPIClass::end(unsigned long ssPin) {
+void SPIClass::end(uint8_t ssPin) {
 	ROM_SSIDisable(SSIBASE);
 }
 
@@ -155,7 +159,8 @@ void SPIClass::end() {
 	end(slaveSelect);
 }
 
-void SPIClass::setBitOrder(unsigned long ssPin, uint8_t bitOrder)
+
+void SPIClass::setBitOrder(uint8_t ssPin, uint8_t bitOrder)
 {
 }
 
@@ -172,18 +177,19 @@ void SPIClass::setDataMode(uint8_t mode) {
 
 }
 
-void SPIClass::setClockDivider(uint8_t divider) {
+void SPIClass::setClockDivider(uint8_t divider){
 
   //value must be even
   HWREG(SSIBASE + SSI_O_CPSR) = divider;
 
 }
 
-uint8_t SPIClass::transfer(unsigned long ssPin, uint8_t data, uint8_t transferMode) {
+uint8_t SPIClass::transfer(uint8_t ssPin, uint8_t data, uint8_t transferMode) {
 
-	unsigned long rxData;
+	uint8_t rxData;
 
 	digitalWrite(ssPin, LOW);
+
 
 	ROM_SSIDataPut(SSIBASE, data);
 
@@ -194,13 +200,14 @@ uint8_t SPIClass::transfer(unsigned long ssPin, uint8_t data, uint8_t transferMo
 	else
 		digitalWrite(ssPin, LOW);
 
+
 	ROM_SSIDataGet(SSIBASE, &rxData);
 
 	return (uint8_t) rxData;
 
 }
 
-uint8_t SPIClass::transfer(unsigned long ssPin, uint8_t data) {
+uint8_t SPIClass::transfer(uint8_t ssPin, uint8_t data) {
 
   return transfer(ssPin, data, SPI_LAST);
 
@@ -212,12 +219,13 @@ uint8_t SPIClass::transfer(uint8_t data) {
 
 }
 
-void SPIClass::setModule(unsigned long module) {
+
+void SPIClass::setModule(uint8_t module) {
   SSIModule = module;
   begin(SSELPIN);
 }
 
-void SPIClass::setModule(unsigned long module, unsigned long ssPin) {
+void SPIClass::setModule(uint8_t module, uint8_t ssPin) {
   SSIModule = module;
   begin(ssPin);
 }
