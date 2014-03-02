@@ -1,3 +1,8 @@
+// Enter here the name (=SSID) and password of your WiFi LAN
+
+#define WLAN_SSID       "energia"        // cannot be longer than 32 characters!
+#define WLAN_PASS       "supersecret"
+
  /*
   Web  Server
  
@@ -18,24 +23,31 @@
 #include "SPI.h"
 #include "WiFi.h"
 
-char ssid[] = "energia";     //  your network SSID (name) 
-char pass[] = "supersecret";     //  your network SSID (name) 
+// Prototypes
+void printConfig();
+void printWifiData();
+void printIndex();
+void printHelp();
+
+char ssid[] = WLAN_SSID;     //  your network SSID (name) 
+char pass[] = WLAN_PASS;     //  your network SSID (name) 
 
 WiFiServer server(80);
 WiFiClient client;
 int statusConfig = 0;
-//int checkSocket = 1;
+
 void setup() {
   Serial.begin(115200);    
   
-  WiFi.setCSpin(P2_2);
-  WiFi.setENpin(P6_5);
-  WiFi.setIRQpin(P2_0);
-
+  // Set communication pins for CC3000
+  WiFi.setCSpin(18);  // 18: P2_2 @ F5529, PE_0 @ LM4F/TM4C
+  WiFi.setENpin(2);   //  2: P6_5 @ F5529, PB_5 @ LM4F/TM4C
+  WiFi.setIRQpin(19); // 19: P2_0 @ F5529, PB_2 @ LM4F/TM4C
+ 
   pinMode(RED_LED, OUTPUT);
   pinMode(GREEN_LED, OUTPUT);
-  pinMode(PUSH1, INPUT);
-  pinMode(PUSH2, INPUT);
+  pinMode(PUSH1, INPUT_PULLUP); // released = HIGH, pressed = LOW
+  pinMode(PUSH2, INPUT_PULLUP);
   
   delay(10);
 
@@ -140,8 +152,12 @@ void printConfig()
   client.println("<h1 align=center><font color=\"red\">Welcome To CC3000 Web Server</font></h1>");
   
   // the content of the HTTP response follows the header:
-  client.println("GREEN_LED <a href=\"/GREEN_LED_H\">HIGH</a> <a href=\"/GREEN_LED_L\">LOW</a><br>");
-  client.println("RED_LED <a href=\"/RED_LED_H\">HIGH</a> <a href=\"/RED_LED_L\">LOW</a><br><br>");
+  // Added: nicer buttons
+  client.print("<font color='green'>GREEN_LED</font> <button onclick=\"location.href='/GREEN_LED_H'\">HIGH</button>");
+  client.println(" <button onclick=\"location.href='/GREEN_LED_L'\">LOW</button><br>");
+  client.print("<font color='red'>RED_LED</font> <button onclick=\"location.href='/RED_LED_H'\">HIGH</button>");
+  client.println(" <button onclick=\"location.href='/RED_LED_L'\">LOW</button><br><br>");
+
   client.println("PUSH1 ");
   if(digitalRead(PUSH1))client.print("is HIGH<br>");
   else client.print("is LOW<br>");

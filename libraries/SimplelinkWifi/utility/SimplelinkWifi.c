@@ -17,7 +17,9 @@
 #define NETAPP_IPCONFIG_MAC_OFFSET				(20)
 
 volatile unsigned long ulSmartConfigFinished, ulCC3000Connected,ulCC3000DHCP,
-OkToDoShutDown, ulCC3000DHCP_configured;
+OkToDoShutDown, ulCC3000DHCP_configured, ulCC3000WasConnected;
+
+volatile fd_set gConnectedSockets;
 
 volatile unsigned char ucStopSmartConfig;
 
@@ -57,11 +59,15 @@ unsigned char pucCC3000_Rx_Buffer[CC3000_APP_BUFFER_SIZE + CC3000_RX_BUFFER_OVER
 //!		      device and operates a LED1 to have an on-board indication
 //
 //*****************************************************************************
-
+#include <Energia.h>
 void CC3000_UsynchCallback(long lEventType, char * data, unsigned char length)
 {
-  
-  
+
+	if (lEventType == HCI_EVNT_BSD_TCP_CLOSE_WAIT)
+	{
+		FD_CLR(data[0], &gConnectedSockets);
+	}
+
 	if (lEventType == HCI_EVNT_WLAN_ASYNC_SIMPLE_CONFIG_DONE)
 	{
 		ulSmartConfigFinished = 1;
@@ -72,6 +78,7 @@ void CC3000_UsynchCallback(long lEventType, char * data, unsigned char length)
 	if (lEventType == HCI_EVNT_WLAN_UNSOL_CONNECT)
 	{
 		ulCC3000Connected = 1;
+		ulCC3000WasConnected = 1;
 		
 	}
 	

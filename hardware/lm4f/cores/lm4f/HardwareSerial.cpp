@@ -7,6 +7,10 @@
  *
  *
  ***********************************************************************
+
+ 2013-12-23 Limited size for RX and TX buffers, by spirilis
+
+ 
   Derived from:
   HardwareSerial.cpp - Hardware serial library for Wiring
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
@@ -49,10 +53,10 @@
 #include "HardwareSerial.h"
 
 #define TX_BUFFER_EMPTY    (txReadIndex == txWriteIndex)
-#define TX_BUFFER_FULL     (((txWriteIndex + 1) % SERIAL_BUFFER_SIZE) == txReadIndex)
+#define TX_BUFFER_FULL     (((txWriteIndex + 1) % txBufferSize) == txReadIndex)
 
 #define RX_BUFFER_EMPTY    (rxReadIndex == rxWriteIndex)
-#define RX_BUFFER_FULL     (((rxWriteIndex + 1) % SERIAL_BUFFER_SIZE) == rxReadIndex)
+#define RX_BUFFER_FULL     (((rxWriteIndex + 1) % rxBufferSize) == rxReadIndex)
 
 #define UART_BASE g_ulUARTBase[uartModule]
 
@@ -119,6 +123,11 @@ HardwareSerial::HardwareSerial(void)
     rxWriteIndex = 0;
     rxReadIndex = 0;
     uartModule = 0;
+
+    txBuffer = (unsigned char *) 0xFFFFFFFF;
+    rxBuffer = (unsigned char *) 0xFFFFFFFF;
+    txBufferSize = SERIAL_BUFFER_SIZE;
+    rxBufferSize = SERIAL_BUFFER_SIZE;
 }
 
 HardwareSerial::HardwareSerial(unsigned long module) 
@@ -128,6 +137,11 @@ HardwareSerial::HardwareSerial(unsigned long module)
     rxWriteIndex = 0;
     rxReadIndex = 0;
     uartModule = module;
+
+    txBuffer = (unsigned char *) 0xFFFFFFFF;
+    rxBuffer = (unsigned char *) 0xFFFFFFFF;
+    txBufferSize = SERIAL_BUFFER_SIZE;
+    rxBufferSize = SERIAL_BUFFER_SIZE;
 }
 // Private Methods //////////////////////////////////////////////////////////////
 void
@@ -170,7 +184,7 @@ HardwareSerial::primeTransmit(unsigned long ulBase)
                 ROM_UARTCharPutNonBlocking(ulBase,
                                        txBuffer[txReadIndex]);
 
-                txReadIndex = (txReadIndex + 1) % SERIAL_BUFFER_SIZE;
+                txReadIndex = (txReadIndex + 1) % txBufferSize;
             }
         }
 
@@ -209,13 +223,31 @@ HardwareSerial::begin(unsigned long baud)
 	flushAll();
 	ROM_UARTIntDisable(UART_BASE, 0xFFFFFFFF);
     ROM_UARTIntEnable(UART_BASE, UART_INT_RX | UART_INT_RT);
-    ROM_IntMasterEnable();
     ROM_IntEnable(g_ulUARTInt[uartModule]);
 
     //
     // Enable the UART operation.
     //
     ROM_UARTEnable(UART_BASE);
+
+    // Allocate TX & RX buffers
+    if (txBuffer != (unsigned char *)0xFFFFFFFF)  // Catch attempts to re-init this Serial instance by freeing old buffer first
+        free(txBuffer);
+    if (rxBuffer != (unsigned char *)0xFFFFFFFF)  // Catch attempts to re-init this Serial instance by freeing old buffer first
+        free(rxBuffer);
+    txBuffer = (unsigned char *) malloc(txBufferSize);
+    rxBuffer = (unsigned char *) malloc(rxBufferSize);
+
+    SysCtlDelay(100);
+}
+
+void
+HardwareSerial::setBufferSize(unsigned long txsize, unsigned long rxsize)
+{
+    if (txsize > 0)
+        txBufferSize = txsize;
+    if (rxsize > 0)
+        rxBufferSize = rxsize;
 }
 
 void
@@ -267,7 +299,7 @@ void HardwareSerial::end()
 int HardwareSerial::available(void)
 {
     return((rxWriteIndex >= rxReadIndex) ?
-		(rxWriteIndex - rxReadIndex) : SERIAL_BUFFER_SIZE - (rxReadIndex - rxWriteIndex));
+		(rxWriteIndex - rxReadIndex) : rxBufferSize - (rxReadIndex - rxWriteIndex));
 }
 
 int HardwareSerial::peek(void)
@@ -298,7 +330,7 @@ int HardwareSerial::peek(void)
 int HardwareSerial::read(void)
 {
 	unsigned char cChar = peek();
-    rxReadIndex = ((rxReadIndex) + 1) % SERIAL_BUFFER_SIZE;
+    rxReadIndex = ((rxReadIndex) + 1) % rxBufferSize;
 	return(cChar);
 }
 
@@ -329,7 +361,7 @@ size_t HardwareSerial::write(uint8_t c)
     {
         while (TX_BUFFER_FULL);
         txBuffer[txWriteIndex] = '\r';
-		txWriteIndex = (txWriteIndex + 1) % SERIAL_BUFFER_SIZE;
+		txWriteIndex = (txWriteIndex + 1) % txBufferSize;
         numTransmit ++;
     }
 */
@@ -338,7 +370,7 @@ size_t HardwareSerial::write(uint8_t c)
     //
     while (TX_BUFFER_FULL);
     txBuffer[txWriteIndex] = c;
-    txWriteIndex = (txWriteIndex + 1) % SERIAL_BUFFER_SIZE;
+    txWriteIndex = (txWriteIndex + 1) % txBufferSize;
     numTransmit ++;
 
     //
@@ -400,7 +432,7 @@ void HardwareSerial::UARTIntHandler(void){
 
             rxBuffer[rxWriteIndex] =
                 (unsigned char)(lChar & 0xFF);
-            rxWriteIndex = ((rxWriteIndex) + 1) % SERIAL_BUFFER_SIZE;
+            rxWriteIndex = ((rxWriteIndex) + 1) % rxBufferSize;
 
             //
             // If we wrote anything to the transmit buffer, make sure it actually
