@@ -44,9 +44,10 @@
 #define FRACT_INC (MICROSECONDS_PER_WDT_OVERFLOW % 1000)
 #define FRACT_MAX 1000
 
-volatile unsigned long wdt_overflow_count = 0;
-volatile unsigned long wdt_millis = 0;
-volatile unsigned int wdt_fract = 0;
+volatile  unsigned long wdt_overflow_count = 0; // Used in ISR context
+unsigned long wdt_usec = 0;
+unsigned long wdt_sec = 0;
+unsigned long prev_wdt_overflow_count = 0;
 
 void initClocks(void);
 void enableWatchDogIntervalMode(void);
@@ -267,18 +268,26 @@ unsigned long micros()
 
 unsigned long millis()
 {
-	unsigned long m;
-
-	// disable interrupts to ensure consistent readings
-	// safe SREG to avoid issues if interrupts were already disabled
-	uint16_t oldSREG = READ_SR;
-	__dint();
-
-	m = wdt_millis;
-
-	WRITE_SR(oldSREG);	// safe to enable interrupts again
-
- 	return m;
+	unsigned long w1,interval;
+    unsigned char n;    
+    do {
+	  w1 = wdt_overflow_count;
+      if ( w1 == wdt_overflow_count ) 
+        n++;
+      else
+        n = 0;
+    }
+    while (n < 3); // loop until we have a consistent sampling of wdt_overflow_count
+ 
+    interval = (w1-prev_wdt_overflow_count);
+    prev_wdt_overflow_count = w1;
+	wdt_usec += (interval * MICROSECONDS_PER_WDT_OVERFLOW);
+    if ( wdt_usec > 1000000 ) 
+    {
+      wdt_usec -= 1000000;
+      wdt_sec += 1;
+    }
+    return (wdt_sec*1000) + (wdt_usec/1000);    
 }
 
 /* Delay for the given number of microseconds.  Assumes a 1, 8 or 16 MHz clock. */
@@ -353,30 +362,14 @@ void delayMicroseconds(unsigned int us)
 void delay(uint32_t milliseconds)
 {
 	uint32_t start = millis();
-        while(millis() - start < milliseconds)
-                /* Wait for WDT interrupt in LMP0 */
-                __bis_status_register(LPM0_bits+GIE);
+    while(millis() - start < milliseconds)
+        __bis_status_register(LPM0_bits+GIE);     /* Wait for WDT interrupt in LMP0 */
 }
 
 __attribute__((interrupt(WDT_VECTOR)))
 void watchdog_isr (void)
 {
-	// copy these to local variables so they can be stored in registers
-	// (volatile variables must be read from memory on every access)
-	unsigned long m = wdt_millis;
-	unsigned int f = wdt_fract;
-
-	m += MILLIS_INC;
-	f += FRACT_INC;
-	if (f >= FRACT_MAX) {
-		f -= FRACT_MAX;
-		m += 1;
-	}
-
-	wdt_fract = f;
-	wdt_millis = m;
-	wdt_overflow_count++;
-
-        /* Exit from LMP3 on reti (this includes LMP0) */
-        __bic_status_register_on_exit(LPM3_bits);
+    __bis_status_register(GIE); // allow interrupt nesting
+    wdt_overflow_count++;
+    __bic_status_register_on_exit(LPM3_bits);  /* Exit from LMP3 on reti (this includes LMP0) */
 }
