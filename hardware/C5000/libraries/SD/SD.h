@@ -104,7 +104,7 @@ class File
         /** Variable to hold the character which was read last */
         char          holdCharFromRead;
         /** File name buffer */
-        char          fileName[13];
+        char          fileName[64];
         /** Starting cluster */
         unsigned long startCluster;
         /** ATA file structure */

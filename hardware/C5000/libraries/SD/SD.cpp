@@ -45,6 +45,8 @@
 /** Macro to indicate the maximum clock value for the SD/MMC Card*/
 #define CSL_SD_CLOCK_MAX_KHZ      (20000u)
 
+
+#define MAX_DIRECTORY_NAME_LENGTH (32)
 /** Macro to enable the Print messages to be displayed on the Serial */
 //#define ENABLE_SERIAL_MSGS
 
@@ -530,7 +532,7 @@ static void extractFileNameFromPath(char *filePath, char *fileName)
 static void extractFileNameAndExt (char *string, char *fileName, char *extension)
 {
     char *tempPtr;
-    char buffer[13];
+    char buffer[32];
 
     tempPtr = NULL;
     buffer[12] = '\0';
@@ -567,12 +569,12 @@ static void extractFileNameAndExt (char *string, char *fileName, char *extension
 static AtaFile* searchFile (AtaFile  *pAtaFile, char *fileNameWitExt)
 {
     char     FileName[256];
-    char     nameUp[10];
+    char     nameUp[MAX_DIRECTORY_NAME_LENGTH];
     char     ext[10];
     char     extUp[10];
     short    counter;
     AtaError ata_error;
-    char     fileName[13];
+    char     fileName[32];
 
     ata_error = ATA_ERROR_NONE;
 
@@ -594,7 +596,7 @@ static AtaFile* searchFile (AtaFile  *pAtaFile, char *fileNameWitExt)
     }
 
     /* check length of the filename */
-    if (strlen(fileName) > 8)
+    if (strlen(fileName) > MAX_DIRECTORY_NAME_LENGTH)
     {
         return ((AtaFile*)NULL);
     }
@@ -686,13 +688,13 @@ static AtaFile* searchFile (AtaFile  *pAtaFile, char *fileNameWitExt)
 static AtaFile* searchDirectory (AtaFile  *pAtaFile, char *directoryName)
 {
     char     FileName[256];
-    char     nameUp[10];
+    char     nameUp[MAX_DIRECTORY_NAME_LENGTH];
     short    counter;
     AtaError ata_error;
 
     ata_error = ATA_ERROR_NONE;
 
-    if (strlen(directoryName) > 8)
+    if (strlen(directoryName) > MAX_DIRECTORY_NAME_LENGTH)
     {
         return ((AtaFile*)NULL);
     }
@@ -792,7 +794,7 @@ static Bool checkFilePathName(char *filePathName)
     extension = strrchr(filePathName, '.');
     if ((extension != NULL) && (extension > fileName))
     {
-        if (((extension - fileName) > 8) || (strlen(extension) > 4))
+        if (((extension - fileName) > MAX_DIRECTORY_NAME_LENGTH) || (strlen(extension) > 4))
         {
             /* Here 'extension' will also include '.' */
             return (FALSE);
@@ -820,7 +822,7 @@ static Bool checkFilePathName(char *filePathName)
             }
         }
 
-        if (strlen(fileName) > 8)
+        if (strlen(fileName) > MAX_DIRECTORY_NAME_LENGTH)
         {
             /* Length of file name is more than 8 */
             return (FALSE);
@@ -845,9 +847,9 @@ Bool SD_Class::exists (char *filePath)
 {
     AtaFile  *pAtaFile;
     AtaFile  *tmpAddr;
-    char     directoryName[9];
+    char     directoryName[MAX_DIRECTORY_NAME_LENGTH];
     int      dirNameLen;
-    char     fileName[13];
+    char     fileName[32];
     char     *tempPtr;
     char     *prevPtr;
 
@@ -937,7 +939,7 @@ Bool SD_Class::mkdir (char *directoryPath)
     AtaFile  *parentDirAtaFile;
     AtaFile  *tmpAddr;
     AtaFile  *tmpParDirAddr;
-    char     directoryName[9];
+    char     directoryName[MAX_DIRECTORY_NAME_LENGTH];
     char     extension[4];
     char     *tempPtr;
     char     *prevPtr;
@@ -952,7 +954,7 @@ Bool SD_Class::mkdir (char *directoryPath)
     /* Extracts file name along with its extension */
     extractFileNameFromPath(directoryPath, directoryName);
     extractFileNameAndExt(directoryName, directoryName, extension);
-    if ((strlen(directoryName) > 8) || (strlen(extension) > 1))
+    if ((strlen(directoryName) > MAX_DIRECTORY_NAME_LENGTH) || (strlen(extension) > 1))
     {
         return (FALSE);
     }
@@ -1137,7 +1139,7 @@ File SD_Class::open (char *filePath)
     AtaError      ata_error;
     char          *tempPtr;
     char          *prevPtr;
-    char          directoryName[32];
+    char          directoryName[MAX_DIRECTORY_NAME_LENGTH];
     int           dirNameLen;
     char          fileName[32];
     char          ext[4];
@@ -1200,7 +1202,7 @@ File SD_Class::open (char *filePath)
     /* Extracts file name along with its extension */
     extractFileNameFromPath(filePath, fileName);
     extractFileNameAndExt(fileName, fileName, ext);
-    if ((strlen(fileName) > 8) || (strlen(ext) > 3))
+    if ((strlen(fileName) > MAX_DIRECTORY_NAME_LENGTH) || (strlen(ext) > 3))
     {
         memset(&fileObj, 0, sizeof(File));
         return (fileObj);
@@ -1375,7 +1377,7 @@ File SD_Class::open (char *filePath, FILE_MODE mode)
     fileNodesList *newFileNode;
     char          fileName[32];
     char          extension[4];
-    char          directoryName[32];
+    char          directoryName[MAX_DIRECTORY_NAME_LENGTH];
     int           dirNameLen;
     char          *tempPtr;
     char          *prevPtr;
@@ -1446,7 +1448,7 @@ File SD_Class::open (char *filePath, FILE_MODE mode)
         extractFileNameFromPath(filePath, fileName);
 
         extractFileNameAndExt(fileName, fileName, extension);
-        if ((strlen(fileName) > 8) || (strlen(extension) > 3))
+        if ((strlen(fileName) > MAX_DIRECTORY_NAME_LENGTH) || (strlen(extension) > 3))
         {
             memset(&fileObj, 0, sizeof(File));
             return (fileObj);
@@ -1570,11 +1572,11 @@ Bool SD_Class::remove (char *filePath)
     AtaFile       *pAtaFile;
     AtaError      ata_error;
     AtaFile       *tmpAddr;
-    char          fileName[13];
+    char          fileName[32];
     char          extension[4];
     char          *tempPtr;
     char          *prevPtr;
-    char          directoryName[9];
+    char          directoryName[MAX_DIRECTORY_NAME_LENGTH];
     int           dirNameLen;
 
     prevPtr     = filePath;
@@ -1589,7 +1591,7 @@ Bool SD_Class::remove (char *filePath)
     extractFileNameFromPath(filePath, fileName);
 
     extractFileNameAndExt(fileName, fileName, extension);
-    if ((strlen(fileName) > 8) || (strlen(extension) > 3))
+    if ((strlen(fileName) > MAX_DIRECTORY_NAME_LENGTH) || (strlen(extension) > 3))
     {
         return (FALSE);
     }
@@ -1681,7 +1683,7 @@ Bool SD_Class::rmdir (char *directoryPath)
     AtaFile  *pAtaFile;
     AtaError ata_error;
     AtaFile  *tmpAddr;
-    char     directoryName[9];
+    char     directoryName[MAX_DIRECTORY_NAME_LENGTH];
     char     extension[4];
     char     *tempPtr;
     char     *prevPtr;
@@ -1695,7 +1697,7 @@ Bool SD_Class::rmdir (char *directoryPath)
     /* Extracts file name along with its extension */
     extractFileNameFromPath(directoryPath, directoryName);
     extractFileNameAndExt(directoryName, directoryName, extension);
-    if ((strlen(directoryName) > 8) || (strlen(extension) > 1))
+    if ((strlen(directoryName) > MAX_DIRECTORY_NAME_LENGTH) || (strlen(extension) > 1))
     {
         return (FALSE);
     }
