@@ -42,6 +42,7 @@
 
 #include <Serial_lib.h>
 #include <core.h>
+#include <Wire_lib.h>
 
 /** Defining the static variables */
 int SerialClass::isInitialized = 0;
@@ -134,6 +135,8 @@ void SerialClass::begin(long baudRate)
         baudConfig.stopBits = 0;
 
         this->begin (baudRate, &baudConfig);
+        Wire.endTransmission();
+        Wire.begin();
     }
 }
 
