@@ -305,7 +305,7 @@ else
 	if (true == Base.getCompileCoreLibrary()){
 		compileLibrary();
 	}
-	else{
+	//else{
 		mainCppFullPath = corePath + File.separator + "main.cpp";
 		File file = new File(mainCppFullPath);
 		String objectPath = buildPath + File.separator + "main.cpp.obj";
@@ -315,7 +315,7 @@ else
 												 file.getAbsolutePath(),
 												 objectPath,
 												 boardPreferences));
-	}
+	//}
 
   	runtimeLibraryName = variantPath + File.separator + "core.lib";
   	mainCppFullPath = buildPath + File.separator + "main.cpp.obj";
@@ -432,18 +432,18 @@ else
         buildPath + File.separator + primaryClassName + ".elf"
         }));
     }
-    
+
     for (File file : objectFiles) {
         baseCommandLinker.add(file.getAbsolutePath());
     }
-    
+
     baseCommandLinker.add(runtimeLibraryName);
     if(arch == "lm4f" || arch == "cc3200"){
       baseCommandLinker.add("-L" + buildPath);
       baseCommandLinker.add("-lm");
       baseCommandLinker.add("-lc");
       baseCommandLinker.add("-lgcc");
-    } 
+    }
     //Obtain the correct linker files for the specific chip
     if(arch == "c2000"){
         baseCommandLinker.add("-l" + boardPreferences.get("build.rts"));
@@ -498,7 +498,7 @@ else
     }
     else
     {
-    execAsynchronously(baseCommandLinker);
+      execAsynchronously(baseCommandLinker);
     }
     List baseCommandObjcopy;
     if (arch == "msp430") {
