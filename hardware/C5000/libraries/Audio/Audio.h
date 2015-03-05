@@ -59,15 +59,18 @@ extern "C" {
 /** DMA right write channel */
 #define DMA_CHAN_WriteR        (CSL_DMA_CHAN7)
 
-#define SAMPLING_RATE_8_KHZ  (8000u)  /**< Sampling Rate as 8 kHz  */
-#define SAMPLING_RATE_11_KHZ (11025u) /**< Sampling Rate as 11 kHz */
-#define SAMPLING_RATE_12_KHZ (12000u) /**< Sampling Rate as 12 kHz */
-#define SAMPLING_RATE_16_KHZ (16000u) /**< Sampling Rate as 16 kHz */
-#define SAMPLING_RATE_22_KHZ (22050u) /**< Sampling Rate as 22 kHz */
-#define SAMPLING_RATE_24_KHZ (24000u) /**< Sampling Rate as 24 kHz */
-#define SAMPLING_RATE_32_KHZ (32000u) /**< Sampling Rate as 32 kHz */
-#define SAMPLING_RATE_44_KHZ (44100u) /**< Sampling Rate as 44 kHz */
-#define SAMPLING_RATE_48_KHZ (48000u) /**< Sampling Rate as 48 kHz */
+#define SAMPLING_RATE_8_KHZ    (8000u)  /**< Sampling Rate as 8 kHz  */
+#define SAMPLING_RATE_11_KHZ   (11025u) /**< Sampling Rate as 11 kHz */
+#define SAMPLING_RATE_12_KHZ   (12000u) /**< Sampling Rate as 12 kHz */
+#define SAMPLING_RATE_16_KHZ   (16000u) /**< Sampling Rate as 16 kHz */
+#define SAMPLING_RATE_22_KHZ   (22050u) /**< Sampling Rate as 22 kHz */
+#define SAMPLING_RATE_24_KHZ   (24000u) /**< Sampling Rate as 24 kHz */
+#define SAMPLING_RATE_32_KHZ   (32000u) /**< Sampling Rate as 32 kHz */
+#define SAMPLING_RATE_44_KHZ   (44100u) /**< Sampling Rate as 44 kHz */
+#define SAMPLING_RATE_48_KHZ   (48000u) /**< Sampling Rate as 48 kHz */
+#define SAMPLING_RATE_96_KHZ   (96000u) /**< Sampling Rate as 96 kHz */
+#define SAMPLING_RATE_192_KHZ (192000u) /**< Sampling Rate as 192 kHz */
+#define SAMPLING_RATE_ADC_16_KHZ_DAC_48_KHZ   (16048u) /**< Sampling Rate as 96 kHz */
 
 #define CHANNEL_MONO   (1)  /**< Macro to indicate the Channel type as Mono   */
 #define CHANNEL_STEREO (2)  /**< Macro to indicate the Channel type as Stereo */
@@ -121,11 +124,12 @@ class AudioClass {
         int I2SDmaReadRight(void);
         int I2SDmaWriteLeft(void);
         int I2SDmaWriteRight(void);
-        int bufferSize;
+        int adcBufferSize;
+        int dacBufferSize;
 
     public:
         int Audio(void);
-        int Audio(int process, int buffer_size = I2S_DMA_BUF_LEN);
+        int Audio(int process, int adc_buffer_size = I2S_DMA_BUF_LEN, int dac_buffer_size = I2S_DMA_BUF_LEN);
         /** Audio input - left channel */
         Uint16 *audioInLeft[2];
         /** Audio input - right channel */
@@ -154,7 +158,8 @@ class AudioClass {
         int audioMute(void);
         int audioUnmute(void);
         int setSamplingRate(long);
-
+        int setupCodec(long samplingRate, int adcProcessingBlock = 1, int dacProcessingBlock = 1);
+        
         int dacSetFirstOrderIirFilter(long N0, long N1, long D1);
         int dacSetFirstOrderIirFilter(long LN0, long LN1, long LD1, long RN0, long RN1, long RD1);
         int dacSetBiquadIirFilter(int filter, long LN0, long LN1, long LN2, long LD1, long LD2, long RN0, long RN1, long RN2, long RD1, long RD2);
@@ -190,6 +195,9 @@ class AudioClass {
         int LOR_RConF_Routing(int right);
 
         ~AudioClass(void); // Destructor
+        
+        private:
+        
 };
 
 extern AudioClass AudioC;
@@ -202,4 +210,5 @@ extern AudioClass AudioC;
 #endif
 
 #endif //_AUDIO_H_
+
 

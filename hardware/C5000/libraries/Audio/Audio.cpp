@@ -86,7 +86,6 @@ static const Uint16 CodecConfig_SamplingRate_8k[][2] = {
     {18, 0x86},     // NADC value
     {19, 0x87},     // MADC value
     {20, 0x80},     // AOSR (LSB) value
-    {30, 0x9C},     // BCLK value
 };
 
 /** CODEC configurations to set Sampling Rate as 11.05KHz */
@@ -103,7 +102,6 @@ static const Uint16 CodecConfig_SamplingRate_11k[][2] = {
     {18, 0x85},     // NADC value
     {19, 0x86},     // MADC value
     {20, 0x80},     // AOSR (LSB) value
-    {30, 0x98},     // BCLK value
 };
 
 /** CODEC configurations to set Sampling Rate as 12KHz */
@@ -120,7 +118,6 @@ static const Uint16 CodecConfig_SamplingRate_12k[][2] = {
     {18, 0x87},     // NADC value
     {19, 0x88},     // MADC value
     {20, 0x80},     // AOSR (LSB) value
-    {30, 0xA0},     // BCLK value
 };
 
 /** CODEC configurations to set Sampling Rate as 16KHz */
@@ -137,7 +134,6 @@ static const Uint16 CodecConfig_SamplingRate_16k[][2] = {
     {18, 0x86},     // NADC value
     {19, 0x87},     // MADC value
     {20, 0x80},     // AOSR (LSB) value
-    {30, 0x9C},     // BCLK value
 };
 
 /** CODEC configurations to set Sampling Rate as 22.05KHz */
@@ -154,7 +150,6 @@ static const Uint16 CodecConfig_SamplingRate_22k[][2] = {
     {18, 0x85},     // NADC value
     {19, 0x86},     // MADC value
     {20, 0x80},     // AOSR (LSB) value
-    {30, 0x98},     // BCLK value
 };
 
 /** CODEC configurations to set Sampling Rate as 24KHz */
@@ -171,7 +166,6 @@ static const Uint16 CodecConfig_SamplingRate_24k[][2] = {
     {18, 0x84},     // NADC value
     {19, 0x87},     // MADC value
     {20, 0x80},     // AOSR (LSB) value
-    {30, 0x9C},     // BCLK value
 };
 
 /** CODEC configurations to set Sampling Rate as 32KHz */
@@ -188,7 +182,6 @@ static const Uint16 CodecConfig_SamplingRate_32k[][2] = {
     {18, 0x83},     // NADC value
     {19, 0x87},     // MADC value
     {20, 0x80},     // AOSR (LSB) value
-    {30, 0x9C},     // BCLK value
 };
 
 /** CODEC configurations to set Sampling Rate as 44.1KHz */
@@ -205,7 +198,6 @@ static const Uint16 CodecConfig_SamplingRate_44k[][2] = {
     {18, 0x85},     // NADC value
     {19, 0x83},     // MADC value
     {20, 0x80},     // AOSR (LSB) value
-    {30, 0x8C},     // BCLK value
 };
 
 /** CODEC configurations to set Sampling Rate as 48KHz */
@@ -222,7 +214,54 @@ static const Uint16 CodecConfig_SamplingRate_48k[][2] = {
     {18, 0x82},     // NADC value
     {19, 0x87},     // MADC value
     {20, 0x80},     // AOSR (LSB) value
-    {30, 0x9C},     // BCLK value
+};
+
+/** CODEC configurations to set Sampling Rate as 96KHz */
+static const Uint16 CodecConfig_SamplingRate_96k[][2] = {
+    {0,  0x00},     // Select Page 0
+    {5,  0x91},     // p & r values
+    {6,  0x07},     // j value
+    {7,  0x06},     // D (MSB) value
+    {8,  0x90},     // D (LSB) value
+    {11, 0x82},     // NDAC value
+    {12, 0x87},     // MDAC value
+    {13, 0x00},     // DOSR (MSB) value
+    {14, 0x40},     // DPSR (LSB) value
+    {18, 0x82},     // NADC value
+    {19, 0x87},     // MADC value
+    {20, 0x40},     // AOSR (LSB) value
+};
+
+/** CODEC configurations to set Sampling Rate as 192KHz */
+static const Uint16 CodecConfig_SamplingRate_192k[][2] = {
+    {0,  0x00},     // Select Page 0
+    {5,  0x91},     // p & r values
+    {6,  0x07},     // j value
+    {7,  0x06},     // D (MSB) value
+    {8,  0x90},     // D (LSB) value
+    {11, 0x82},     // NDAC value
+    {12, 0x87},     // MDAC value
+    {13, 0x00},     // DOSR (MSB) value
+    {14, 0x20},     // DPSR (LSB) value
+    {18, 0x82},     // NADC value
+    {19, 0x87},     // MADC value
+    {20, 0x20},     // AOSR (LSB) value
+};
+
+/** CODEC configurations to set Sampling Rate for ADC as 16 kHz and DAC as 48 KHz */
+static const Uint16 CodecConfig_SamplingRate_adc_16k_dac_48k[][2] = {
+    {0,  0x00},     // Select Page 0
+    {5,  0x91},     // p & r values
+    {6,  0x07},     // j value
+    {7,  0x06},     // D (MSB) value
+    {8,  0x90},     // D (LSB) value
+    {11, 0x82},     // NDAC value
+    {12, 0x87},     // MDAC value
+    {13, 0x00},     // DOSR (MSB) value
+    {14, 0x80},     // DPSR (LSB) value
+    {18, 0x86},     // NADC value
+    {19, 0x87},     // MADC value
+    {20, 0x80},     // AOSR (LSB) value
 };
 
 /** ===========================================================================
@@ -392,21 +431,22 @@ int AudioClass::Audio(void)
 {
     CSL_Status status;
     
-    bufferSize = I2S_DMA_BUF_LEN;
+    adcBufferSize = I2S_DMA_BUF_LEN;
+    dacBufferSize = I2S_DMA_BUF_LEN;
     
     i2sDmaLeftBuff1 = new Uint16*[2];
     i2sDmaRightBuff1 = new Uint16*[2];
     i2sDmaLeftBuff2 = new Uint16*[2];
     i2sDmaRightBuff2 = new Uint16*[2];
     
-    i2sDmaLeftBuff1[0] = new Uint16[bufferSize];
-    i2sDmaLeftBuff1[1] = new Uint16[bufferSize];
-    i2sDmaRightBuff1[0] = new Uint16[bufferSize];
-    i2sDmaRightBuff1[1] = new Uint16[bufferSize];
-    i2sDmaLeftBuff2[0] = new Uint16[bufferSize];
-    i2sDmaLeftBuff2[1] = new Uint16[bufferSize];
-    i2sDmaRightBuff2[0] = new Uint16[bufferSize];
-    i2sDmaRightBuff2[1] = new Uint16[bufferSize];
+    i2sDmaLeftBuff1[0] = new Uint16[adcBufferSize];
+    i2sDmaLeftBuff1[1] = new Uint16[adcBufferSize];
+    i2sDmaRightBuff1[0] = new Uint16[adcBufferSize];
+    i2sDmaRightBuff1[1] = new Uint16[adcBufferSize];
+    i2sDmaLeftBuff2[0] = new Uint16[dacBufferSize];
+    i2sDmaLeftBuff2[1] = new Uint16[dacBufferSize];
+    i2sDmaRightBuff2[0] = new Uint16[dacBufferSize];
+    i2sDmaRightBuff2[1] = new Uint16[dacBufferSize];
     
     status = CSL_SOK;
 
@@ -456,27 +496,28 @@ int AudioClass::Audio(void)
  *
  *  ===========================================================================
  */
-int AudioClass::Audio(int process, int buffer_size)
+int AudioClass::Audio(int process, int adc_buffer_size, int dac_buffer_size)
 {
     CSL_Status status;
 
     status = CSL_SOK;
 
-    bufferSize = buffer_size;
+    adcBufferSize = adc_buffer_size;
+    dacBufferSize = dac_buffer_size;
 
     i2sDmaLeftBuff1 = new Uint16*[2];
     i2sDmaRightBuff1 = new Uint16*[2];
     i2sDmaLeftBuff2 = new Uint16*[2];
     i2sDmaRightBuff2 = new Uint16*[2];
     
-    i2sDmaLeftBuff1[0] = new Uint16[bufferSize];
-    i2sDmaLeftBuff1[1] = new Uint16[bufferSize];
-    i2sDmaRightBuff1[0] = new Uint16[bufferSize];
-    i2sDmaRightBuff1[1] = new Uint16[bufferSize];
-    i2sDmaLeftBuff2[0] = new Uint16[bufferSize];
-    i2sDmaLeftBuff2[1] = new Uint16[bufferSize];
-    i2sDmaRightBuff2[0] = new Uint16[bufferSize];
-    i2sDmaRightBuff2[1] = new Uint16[bufferSize]; 
+    i2sDmaLeftBuff1[0] = new Uint16[adcBufferSize];
+    i2sDmaLeftBuff1[1] = new Uint16[adcBufferSize];
+    i2sDmaRightBuff1[0] = new Uint16[adcBufferSize];
+    i2sDmaRightBuff1[1] = new Uint16[adcBufferSize];
+    i2sDmaLeftBuff2[0] = new Uint16[dacBufferSize];
+    i2sDmaLeftBuff2[1] = new Uint16[dacBufferSize];
+    i2sDmaRightBuff2[0] = new Uint16[dacBufferSize];
+    i2sDmaRightBuff2[1] = new Uint16[dacBufferSize]; 
     
     if (!this->isInitialized)
     {
@@ -521,6 +562,100 @@ AudioClass::~AudioClass(void) //destructor
     delete i2sDmaRightBuff2;
 }
 
+
+int AudioClass::setupCodec(long samplingRate, int adcProcessingBlock, int dacProcessingBlock)
+{
+    CSL_Status status = CSL_SOK;
+    
+    // 1 <= adcProcessingBlock <= 18
+    if (adcProcessingBlock < 1)
+    {
+        adcProcessingBlock = 1;
+    }
+    if (adcProcessingBlock > 18)
+    {
+        adcProcessingBlock = 18;
+    }
+    // 1 <= dacProcessingBlock <= 25
+    if (dacProcessingBlock < 1)
+    {
+        dacProcessingBlock = 1;
+    }
+    if (dacProcessingBlock > 25)
+    {
+        dacProcessingBlock = 25;
+    }
+     
+    rset(0, 0);         // Select Page 0
+    rset(1,  0x01);     // Software Reset
+    
+    status |= setSamplingRate(samplingRate);
+    
+//    rset(5,  0x91);     // P & R, enable PLL
+//    rset(6,  0x07);     // J
+//    rset(7,  0x06);     // D (MSB)
+//    rset(8,  0x90);     // D (LSB)
+//    rset(11, 0x82);     // NDAC
+//    rset(12, 0x87);     // MDAC
+//    rset(13, 0x00);     // DOSR (MSB)
+//    rset(14, 0x80);     // DOSR (LSB)
+//    rset(18, 0x82);     // NADC
+//    rset(19, 0x87);     // MADC
+//    rset(20, 0x80);     // AOSR (LSB)
+    
+    rset(60, dacProcessingBlock);
+    rset(61, adcProcessingBlock);
+    
+    //rset(32, 0x02);     // Set WCLK (word clock) to be sourced from ADC_FS
+    //rset(52, 0x1C);     // Get WCLK to GPIO
+    //rset(33, 0x10);     // Set WCLK to ADC_CLK for ADC_CLK > DAC_CLK        
+    
+    rset(0, 1);         // Select Page 1
+    rset(1, 0x08);      // Disable crude AVDD generation from DVDD
+    rset(2, 0x00);      // Enable Master Analog Power Control (was 0x01 "enable Analog LDO for C5535 eZdsp")
+    rset(10,0x00);      // 0.9 V Common mode and HPL/R are powered by AVDD not LDOIN (HPVDD)
+    rset(61,0x00);      // Select ADC PTM_R4 (was not here)
+    rset(71,0x31);      // Set MicPGA startup delay to 3.1ms (was not here)
+    rset(123,0x01);     // Set the REF charging time to 40ms (was not here)
+    rset(20,0x25);      // HP soft stepping settings for optimal pop performance at power up
+    rset(12,0x08);      // LDAC AFIR routed to HPL
+    rset(13,0x08);      // RDAC AFIR routed to HPR
+    rset(14,0x08);      // Route LDAC to LOL
+    rset(15,0x08);      // Route RDAC to LOR
+    rset(3, 0x00);      // Put LDAC in lowest power mode PTM_P3/4 (was not here)
+    rset(4, 0x00);      // Put RDAC in lowest power mode PTM_P3/4 (was not here)
+    rset(16,0x00);      // Unmute HPL , 0dB gain
+    rset(17,0x00);      // Unmute HPR , 0dB gain
+    rset(51,0x48);      // power up Mic Bias using LDO-IN
+    rset(52,0x30);      // Route IN2L to LEFT_P with 40K input impedance
+    rset(54,0x40);      // Route CM1L to LEFT_M with 10K input impedance
+    rset(55,0x30);      // Route IN2L to RIGHT_P with 40K input impedance
+    rset(57,0x40);      // Route CM1R to RIGHT_M with 10K input impedance
+    rset(59,0x00);      // Unmute Left MICPGA, Gain selection of 0dB
+    rset(60,0x00);      // Unmute Right MICPGA, Gain selection of 0dB
+    rset(9, 0x3C);      // Power up HPL/HPR, LOL/LOR
+    
+    delayMilliseconds(3000);
+            
+    rset(0, 0);         // Select Page 0
+    rset(4, 0x43);      // codec_clkin <- PLL Clock
+
+    rset(30, 0x9C);     // BCLK N Divider (?)
+
+    rset(27,0x0D);      // I2S 16 bit, BCLK and WCLK is set as output to AIC3204(Master) (?)
+
+    rset(81, 0xC0);     // Power up LADC/RADC only
+    rset(82, 0x00);     // Unmute LADC/RADC only 0dB gain
+
+    rset(63,0xD4);      // Power up left/right DAC data paths and set channel
+
+    rset(64,0x00);      // Left and right DACs will have independent volume control
+    rset(65,0x00);      // Left DAC volume
+    rset(66,0x00);      // Left DAC volume
+    
+    return(status);
+}
+
 /** ===========================================================================
  *   @n@b init
  *
@@ -558,113 +693,13 @@ int AudioClass::init(void)
     //status = Wire.begin();  //Note; Wire init will be done in main.cpp
     if (status == CSL_SOK)
     {
-        /*    Software Reset */
-        rset(0, 0);         // Select Page 0
-        rset(1, 0x01);      // Software Reset
-
-        adcPowerDown();
-        dacPowerDown();
-        adcSetAdaptiveFilterMode(TRUE);
-        dacSetAdaptiveFilterMode(TRUE);
-
-        rset(0, 1);         // Select Page 1
-        
-        /* Disable crude AVDD generation from DVDD */
-        rset(1, 0x08);
-
-        rset(2, 0x01);      // enable Analog LDO for C5535 eZdsp
-
-/*    Clock and Interface Settings: Master Mode
- *    running off of 12 MHz MCLK
- *  AIC3204 PLL is not used and turned off
- *  THIS IS NEEDED WHETHER RECORD OR PLAYBACK - DAC_MOD_CLK is routed to ADC_MOD_CLK */
-
-        rset(0, 0);         // Select Page 0
-
-        rset(27,0x0D);      // BCLK and WCLK is set as op to AIC3204(Master)
-        rset(4, 0x03);      // codec_clkin <- MCLK
-
-        rset(5,  0x91);     // p & r values
-        rset(6,  0x07);     // j value
-        rset(7,  0x06);     // D (MSB) value
-        rset(8,  0x90);     // D (LSB) value
-        rset(11, 0x82);     // NDAC value
-        rset(12, 0x87);     // MDAC value
-        rset(13, 0x00);     // DOSR (MSB) value
-        rset(14, 0x80);     // DPSR (LSB) value
-        rset(18, 0x82);     // NADC value
-        rset(19, 0x87);     // MADC value
-        rset(20, 0x80);     // AOSR (LSB) value
-        rset(30, 0x9C);     // BCLK value
-
-        /* Configure DAC Channel */
-        /* DISABLE DAC DURING RECORD */
-        rset(0, 1);         // Select Page 1
-        rset(20,0x25);      // 14Feb2012 - Added to avoid pop during the start-up
-        rset(10,0x00);      // 0.9 V Common mode and HPL/R are powered by AVDD not LDOIN (HPVDD)
-        //rset(3,0x08);     // Put LDAC in lowest power mode PTM_P1 (page 27 & 35 of AIC3204 datasheet)
-        //rset(4,0x08);     // Put RDAC in lowest power mode PTM_P1 (page 27 & 35 of AIC3204 datasheet)
-        rset(12,0x08);      // LDAC AFIR routed to HPL
-        rset(13,0x08);      // RDAC AFIR routed to HPR
-
-        /* Route LDAC/RDAC to LOL/LOR */
-        rset(14, 0x08);
-        rset(15, 0x08);
-
-        rset(0, 0);         // Select Page 0
-        //rset(60,0x07);    // Put DACs in lowest power mode PRB_P7 (page 35 of AIC3204 datasheet)
-        rset(63,0xD4);      // Power up left,right data paths and set channel
-
-        rset(0, 1);         // Select Page 1
-        rset(16,0x00);      // Unmute HPL , 0dB gain
-        rset(17,0x00);      // Unmute HPR , 0dB gain
-        /* Unmute LOL/LOR driver, 0dB Gain */
-        rset(9, 0x3C);      // Power up HPL,HPR
-
-        rset(0, 0);         // Select Page 0
-        rset(64,0x02);      // Left and right DACs will have independent volume control
-        rset(65,0x00);      // Left DAC volume
-
-        /*    Configure ADC Channel */
-        /*  DISABLE ADC DURING PLAYBACK */
-
-        rset(0, 0);         // Select Page 0
-        rset(20,0x80);      // AOSR for AOSR = 64 decimal or 0x0040 for decimation filters 1 to 6
-                            // MADC is powered down and ADC_MOD_CLK <- DAC_MOD_CLK by default in  Pg 0 - Reg 19
-
-        /* PRB_P2 and PRB_R2 selected */
-        rset(60, 0x02);
-        rset(61, 0x02);
-        
-
-        rset(00, 0x01);     // Select Page 1
-#if 1
-        rset(51, 0x48);     // power up Mic Bias using LDO-IN
-        rset(52, 0x30);     // Route IN2L to LEFT_P with 40K input impedance
-        rset(54, 0x40);     // Route CM1L to LEFT_M with 10K input impedance
-        rset(55, 0x30);     // Route IN2L to RIGHT_P with 40K input impedance
-        rset(57, 0x40);     // Route CM1R to RIGHT_M with 10K input impedance
-#else
-        rset(51, 0x68);     // power up micBIAS, micBIAS = 2.5V (CM = 0.9V)
-        rset(52, 0x10);     // Route IN2L to LEFT_P with 10K input impedance
-        rset(54, 0x40);     // Route CM1L to LEFT_M with 10K input impedance
-        rset(55, 0x01);     // Route IN2L to RIGHT_P with 10K input impedance
-        rset(57, 0x40);     // Route CM1R to RIGHT_M with 10K input impedance
-#endif
-        rset(59, 0x00);     // Unmute Left MICPGA, Gain selection of 0dB
-        rset(60, 0x00);     // Unmute Right MICPGA, Gain selection of 0dB
-
-        rset(0, 0);         // Select Page 0
-        rset(81, 0xC0);     // Power up LADC/RADC only
-        rset(82, 0x00);     // Unmute LADC/RADC only 0dB gain
-
-        delayMilliseconds(3000);
+        setupCodec(SAMPLING_RATE_48_KHZ);
 
         /* Initialize I2S */
         status = I2S.init();
         if (status != CSL_SOK)
         {
-        DBG_MSG_PRINT("\n I2S init failed \n");
+            DBG_MSG_PRINT("\n I2S init failed \n");
             return (CSL_ESYS_FAIL);
         }
 
@@ -672,7 +707,7 @@ int AudioClass::init(void)
         I2S.enable();
 
         /* Initialize DMA buffers with zeroes */
-        for(index = 0; index < bufferSize; index++)
+        for(index = 0; index < adcBufferSize; index++)
         {
             i2sDmaLeftBuff1[0][index] = 0;
             i2sDmaRightBuff1[0][index] = 0;
@@ -802,7 +837,7 @@ int AudioClass::I2SDmaReadLeft(void)
     dmaConfig.dmaEvent         = DMA_EVENT_I2S2_RX;
     dmaConfig.enableDmaInt     = 0;
     dmaConfig.chanDir          = DMA_CHANNEL_DIRECTION_READ;
-    dmaConfig.dataLen          = bufferSize* 2;
+    dmaConfig.dataLen          = adcBufferSize * 2;
     dmaConfig.destAddr         = audioInLeft[activeInBuf];
 #ifdef CHIP_C5517
     dmaConfig.srcAddr          = (unsigned short *)&CSL_I2S2_REGS->I2SRXLTL;
@@ -848,7 +883,7 @@ int AudioClass::I2SDmaReadRight(void)
     dmaConfig.dmaEvent         = DMA_EVENT_I2S2_RX;
     dmaConfig.enableDmaInt     = 1;
     dmaConfig.chanDir          = DMA_CHANNEL_DIRECTION_READ;
-    dmaConfig.dataLen          = bufferSize * 2;
+    dmaConfig.dataLen          = adcBufferSize * 2;
     dmaConfig.destAddr         = audioInRight[activeInBuf];
 #ifdef CHIP_C5517
     dmaConfig.srcAddr          = (unsigned short *)&CSL_I2S2_REGS->I2SRXRTL;
@@ -940,7 +975,7 @@ int AudioClass::I2SDmaWriteLeft(void)
     dmaConfig.dmaEvent         = DMA_EVENT_I2S2_TX;
     dmaConfig.enableDmaInt     = 0;
     dmaConfig.chanDir          = DMA_CHANNEL_DIRECTION_WRITE;
-    dmaConfig.dataLen          = bufferSize * 2;
+    dmaConfig.dataLen          = dacBufferSize * 2;
 #ifdef CHIP_C5517
     dmaConfig.destAddr         = (unsigned short *)&CSL_I2S2_REGS->I2STXLTL;
 #else
@@ -986,7 +1021,7 @@ int AudioClass::I2SDmaWriteRight(void)
     dmaConfig.dmaEvent         = DMA_EVENT_I2S2_TX;
     dmaConfig.enableDmaInt     = 1;
     dmaConfig.chanDir          = DMA_CHANNEL_DIRECTION_WRITE;
-    dmaConfig.dataLen          = bufferSize * 2;
+    dmaConfig.dataLen          = dacBufferSize * 2;
 #ifdef CHIP_C5517
     dmaConfig.destAddr         = (unsigned short *)&CSL_I2S2_REGS->I2STXRTL;
 #else
@@ -1202,6 +1237,8 @@ int AudioClass::setInputGain(int lgain, int rgain)
     return (status);
 }
 
+int setAdcProgrammableGainAmplifier(int gainTimesTwodB);
+
 /** ===========================================================================
  *   @n@b setOutputVolume
  *
@@ -1338,8 +1375,8 @@ int AudioClass::setOutputVolume(int lvolume, int rvolume)
         return (status);
     }
 
-    Serial.println(lvol);
-    Serial.println(rvol);
+    // Serial.println(lvol);
+    // Serial.println(rvol);
 
     /* Select Page 0 */
     status = rset(0, 0);
@@ -1452,7 +1489,8 @@ int AudioClass::dacSetFirstOrderIirFilter(long N0, long N1, long D1)
 int AudioClass::dacSetBiquadIirFilter(int filter, long LN0, long LN1, long LN2, long LD1, long LD2, long RN0, long RN1, long RN2, long RD1, long RD2)
 {
     CSL_Status status = CSL_SOK;
-    
+
+    return (status);
     if (filter == 1)
     {
         status |= rset(0, 44);         // Set biquad coefficients, Left channel
@@ -1696,14 +1734,14 @@ int AudioClass::adcSet25TapFirFilter(const long *filterLeft, const long *filterR
     status |= rset(0, 9);
     for (int n = 0; n < 21; n++)
     {
-      status |= rset24bit( 44 + 4 * n, filterLeft[n]);
+      status |= rset24bit( 44 + 4 * n, filterRight[n]);
     }
     // Taps 21-24
     status |= rset(0, 10);
-    status |= rset24bit(  8, filterLeft[21]);
-    status |= rset24bit( 12, filterLeft[22]);
-    status |= rset24bit( 16, filterLeft[23]);
-    status |= rset24bit( 20, filterLeft[24]);
+    status |= rset24bit(  8, filterRight[21]);
+    status |= rset24bit( 12, filterRight[22]);
+    status |= rset24bit( 16, filterRight[23]);
+    status |= rset24bit( 20, filterRight[24]);
  
     return(status);
 }
@@ -1917,6 +1955,24 @@ int AudioClass::setSamplingRate(long samplingRate)
                         sizeof(CodecConfig_SamplingRate_48k[0]);
             break;
 
+        case SAMPLING_RATE_96_KHZ:
+            configStruct = (Uint16 (*)[2])CodecConfig_SamplingRate_96k;
+            noOfElems = sizeof(CodecConfig_SamplingRate_96k) /
+                        sizeof(CodecConfig_SamplingRate_96k[0]);
+            break;
+            
+        case SAMPLING_RATE_192_KHZ:
+            configStruct = (Uint16 (*)[2])CodecConfig_SamplingRate_192k;
+            noOfElems = sizeof(CodecConfig_SamplingRate_192k) /
+                        sizeof(CodecConfig_SamplingRate_192k[0]);
+            break;
+
+        case SAMPLING_RATE_ADC_16_KHZ_DAC_48_KHZ:
+            configStruct = (Uint16 (*)[2])CodecConfig_SamplingRate_adc_16k_dac_48k;
+            noOfElems = sizeof(CodecConfig_SamplingRate_adc_16k_dac_48k) /
+                        sizeof(CodecConfig_SamplingRate_adc_16k_dac_48k[0]);
+            break;
+            
         default:
             status = CSL_ESYS_FAIL;
             break;
