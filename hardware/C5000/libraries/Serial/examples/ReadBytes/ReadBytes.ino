@@ -7,7 +7,7 @@
 void setup()
 {
     char  readString[50];
-
+	Serial.begin(9600);
     Serial.println("\r\nSerial.readBytes() Demo!\r\n");
 
     Serial.println("\r\nEnter a string of length 5 bytes:");

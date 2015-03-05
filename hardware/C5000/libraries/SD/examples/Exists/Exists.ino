@@ -15,7 +15,7 @@
 void setup()
 {
     Bool status;
-
+    Serial.begin(9600);
     status = SD.begin();
     if (TRUE == status)
     {

@@ -22,7 +22,7 @@ void setup()
 {
     Bool status;
     Bool dirCreation;
-
+    Serial.begin(9600);
     Serial.println("  Directories and Files creation demo:\r\n");
 
     status = SD.begin();

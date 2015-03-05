@@ -19,7 +19,8 @@ void setup()
     long          position;
     unsigned long fileSize;
     File          fileHandle;
-
+    
+    Serial.begin(9600);
     result = SD.begin();
     if (TRUE == result)
     {

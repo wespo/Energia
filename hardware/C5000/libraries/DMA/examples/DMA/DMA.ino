@@ -34,7 +34,7 @@ void setup()
 
     /* Initialize DMA */
     DMA.init();
-
+    Serial.begin(9600);
     Serial.print("\n Initiating DMA data transfer on different channels\n");
 
     /* Test all the DMA channels by opening each of the channels, configuring

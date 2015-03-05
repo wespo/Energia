@@ -11,7 +11,7 @@ void setup()
     float floatVal;
     long  longVal;
     char  writeString[50];
-
+    Serial.begin(9600);
     Serial.println(" Serial.println() Demo!\r\n");
 
     Serial.println(" Printing a character on Serial using Serial.println(char) API");

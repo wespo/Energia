@@ -8,7 +8,7 @@
 void setup()
 {
     long longVal;
-
+    Serial.begin(9600);
     Serial.println("\r\nSerial Print Format Demo!\r\n");
 
     Serial.println(" Printing an integer '125' in Binary format using print(long, format) API");

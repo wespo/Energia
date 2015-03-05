@@ -17,7 +17,7 @@ void setup() {
     unsigned long           timeCnt2;
     long                    period;
     volatile unsigned short delay;
-
+    Serial.begin(9600);
     Serial.print("\nGPT - Example for initialize() \n");
     
     // Open the GPT module for GPT 1 instance 
@@ -60,4 +60,3 @@ void setup() {
 
 void loop() {
 }
-

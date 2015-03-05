@@ -132,7 +132,7 @@ interrupt void dmaIsr(void)
 void setup() {
     int status;
     int index;
-
+    Serial.begin(9600);
     for (index = 0; index < CIRCULAR_BUFFER_SIZE; index++)
     {
         readyForFFT[index]     = 0;

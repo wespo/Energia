@@ -11,7 +11,7 @@ void setup() {
     int  stopPgm;
     int  userOption;
     char displayStr[13];
-
+    Serial.begin(9600);
     Serial.println("\n OLED Library APIs TEST!");
 
     disp.oledInit();          /* Initialize the OLED module */

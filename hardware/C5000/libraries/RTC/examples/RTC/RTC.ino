@@ -17,7 +17,7 @@ void setup()
 {
     RTCDate  rtcDate;
     RTCTime  rtcTime;
-
+    Serial.begin(9600);
     // Print the format of date which will be displayed on serial monitor
     Serial.println("Date Format - DD:MM:YY");
     Serial.println("Time Format - HH:MM:SS");

@@ -8,7 +8,7 @@
 void setup()
 {
     char  readString[50];
-
+	Serial.begin(9600);
     Serial.println("\r\nSerial.readBytesUntil() Demo!\r\n");
 
     Serial.println("\r\nEnter a string of maximum length 50 bytes. Press '@' to stop:");

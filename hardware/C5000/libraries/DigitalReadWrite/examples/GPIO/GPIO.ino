@@ -10,7 +10,7 @@
 void setup()
 {
     int status;
-
+    Serial.begin(9600);
     Serial.println("GPIO Pin Configuration Demo");
     Serial.println("Short pin16 and pin18 on port P2 for the test");
 

@@ -6,7 +6,7 @@
  * cycles of delay GPT3 counter value is read again. Both the counter values
  * are compared to verify whether the second count value is less
  * than the first counter value or not and the test passes if it is true.
- *
+ *
  * This sketch dmonstrates usage of function Timer.setPeriod
  */
 
@@ -17,7 +17,7 @@ void setup() {
     unsigned long           timeCnt2;
     long                    period;
     volatile unsigned short delay;
-    
+    Serial.begin(9600);   
     Serial.print("\nGPT - Example for setPeriod() \n");
         
     // Open the GPT module for GPT 2 instance 
@@ -60,4 +60,3 @@ void setup() {
 
 void loop() {
 }
-

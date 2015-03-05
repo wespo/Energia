@@ -26,7 +26,7 @@ void loop()
     char readChar;
     int  index;
     char dispString[MSG_LENGTH + 1];
-
+    Serial.begin(9600);
     Serial.println("\r\nEnter the message which is to be displayed on the LCD");
 
     index = 0;

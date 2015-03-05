@@ -17,7 +17,7 @@ void setup()
     Bool status;
     File fileHandle;
     char fileName[15];
-
+    Serial.begin(9600);
     status = SD.begin();
 
     if (TRUE == status)

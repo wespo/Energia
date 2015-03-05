@@ -38,7 +38,7 @@ void setup()
     unsigned short chanNumber;
     unsigned short index;
     volatile int   delay;
-
+    Serial.begin(9600);
     Serial.println("\r\nDMA INTERRUPT MODE DEMO!");
 
     /* DMA.dmaInit() creates DMA data buffers and initializes the config buffer

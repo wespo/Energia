@@ -154,7 +154,7 @@ void setup()
 {
     int  retStatus;
     int  index;
-
+    Serial.begin(9600);
     Serial.print("\n Audio Player Demo!\n");
 
     pinMode(LED0, OUTPUT);

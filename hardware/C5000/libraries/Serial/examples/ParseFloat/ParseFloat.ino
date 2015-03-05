@@ -9,7 +9,7 @@
 void setup()
 {
     float floatVal;
-
+	Serial.begin(9600);
     Serial.println(" Serial.parseFloat() Demo!");
 
     /* Ask for the input (float value) from the User */

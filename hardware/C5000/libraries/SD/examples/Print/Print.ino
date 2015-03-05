@@ -25,7 +25,7 @@ void setup()
     File   fileHandle;
 
     strcpy(String, "Hello");
-
+    Serial.begin(9600);
     status = SD.begin();
     if (TRUE == status)
     {

@@ -9,7 +9,7 @@
 void setup()
 {
     long  longVal;
-
+	Serial.begin(9600);
     Serial.println(" Serial.parseInt() Demo!");
 
     /* Ask for the input (integer value) from the User */

@@ -10,7 +10,7 @@ void setup()
 {
     Bool  result;
     char  targetString[50];
-
+    Serial.begin(9600);
     Serial.println(" Serial.find() Demo!");
 
     /* Ask for the target string from the User */

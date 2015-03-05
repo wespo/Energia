@@ -56,7 +56,7 @@ void setup()
     // Plugin the ISR to vector table and enbale interrupts 	
     attachInterrupt(INTERRUPT_INT1, (INTERRUPT_IsrPtr)INT1_isr, 0);    
     enableInterrupt(INTERRUPT_INT1);
-
+    Serial.begin(9600);
     Serial.print("Change any DIP switch state on SW1 to generate interrupt!\n");
 }
 

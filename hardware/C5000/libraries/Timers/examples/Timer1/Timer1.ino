@@ -17,7 +17,7 @@ void setup() {
     unsigned long           timeCnt1;
     unsigned long           timeCnt2;
     volatile unsigned short delay;
-
+    Serial.begin(9600);
     Serial.print("\nGPT - Example for configTimer() \n");
 
     // Open the GPT module for GPT 0 instance 

@@ -9,7 +9,7 @@
 
 void setup() {
     long value;
-
+    Serial.begin(9600);
     Serial.println("\r\nLCD Print API Demo!");
 
     disp.oledInit();        /* Initialize the OLED module */

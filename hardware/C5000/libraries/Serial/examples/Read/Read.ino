@@ -8,7 +8,7 @@
 void setup()
 {
     char  charVal;
-
+	Serial.begin(9600);
     Serial.println("\r\nSerial Read and Write Demo!\r\n");
 
     Serial.println("Enter a Character (1 byte):");

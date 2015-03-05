@@ -12,6 +12,7 @@ unsigned int pinVal;
 
 void setup()
 {
+    Serial.begin(9600);
     // Read the state of SW1
     pinVal = digitalRead(SW1);
     if (pinVal)

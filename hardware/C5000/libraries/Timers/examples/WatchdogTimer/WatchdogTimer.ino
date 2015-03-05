@@ -11,7 +11,7 @@ void setup() {
     WDT_Config              hwConfig;
     unsigned long           counter;
     volatile unsigned short delay;
-
+    Serial.begin(9600);
     hwConfig.counter  = 0xFFFF;
     hwConfig.prescale = 0x00FF;
 
@@ -58,4 +58,3 @@ void setup() {
 
 void loop() {
 }
-
