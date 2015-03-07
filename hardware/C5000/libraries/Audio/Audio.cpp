@@ -198,6 +198,7 @@ static const Uint16 CodecConfig_SamplingRate_44k[][2] = {
     {18, 0x85},     // NADC value
     {19, 0x83},     // MADC value
     {20, 0x80},     // AOSR (LSB) value
+    {30, 0x8C},     // BCLK value
 };
 
 /** CODEC configurations to set Sampling Rate as 48KHz */
