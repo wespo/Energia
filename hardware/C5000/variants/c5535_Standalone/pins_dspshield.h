@@ -89,6 +89,7 @@
 #define SW3                (29)
 #define SW2                (30)
 #define SW1                (31)
+#define XF                 (32)
 
 static const short digital_pin_to_port[32] = {
     IOEXP_P0,

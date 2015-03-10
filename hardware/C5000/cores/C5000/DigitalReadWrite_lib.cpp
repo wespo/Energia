@@ -86,6 +86,17 @@ int pinMode(unsigned short pinNumber, unsigned short direction)
         return (-1);
     }
 
+    if(pinNumber == XF)
+    {
+        if(direction == OUTPUT)
+        {
+            return CSL_SOK;
+        }
+        else
+        {
+            return CSL_ESYS_FAIL;
+        }
+    }
     expander = pinNumber < LED0?IO_EXPANDER1:IO_EXPANDER2;
     port     = digitalPinToPort(pinNumber);
     pin      = pinNumber % 8;
@@ -196,6 +207,23 @@ int pinMode(unsigned short pinNumber, unsigned short direction)
     port     = digitalPinToPort(pinNumber);
     pin      = pinNumber % 8;
 
+
+    if(pinNumber == XF)
+    {
+        if(wValue == 0)
+        {
+            xfOff();
+        }
+        else if(wValue == 1)
+        {
+            xfOn();
+        }
+        else
+        {
+            return 0;
+        }
+        return 1
+    }
     /* Read Old values of all the pins of the desired port */
     if (0 == port)
     {
@@ -480,6 +508,10 @@ unsigned int digitalRead(int pinNumber)
     port     = digitalPinToPort(pinNumber);
     pin      = pinNumber % 8;
 
+    if(pinNumber == XF)
+    {
+        return CSL_ESYS_FAIL;
+    }
     /* Read the value of the requested IO Expander Pin */
     if (0 == port)
     {
