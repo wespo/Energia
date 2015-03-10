@@ -25,6 +25,7 @@ audioUnmute	KEYWORD2
 setSamplingRate	KEYWORD2
 setInputGain	KEYWORD2
 setOutputVolume	KEYWORD2
+setupCodec	KEYWORD2
 dacSetFirstOrderIirFilter	KEYWORD2
 dacSetFirstOrderIirFilter	KEYWORD2
 dacSetBiquadIirFilter	KEYWORD2
