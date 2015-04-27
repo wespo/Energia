@@ -594,6 +594,85 @@ int SPI_Class::read (unsigned int *buffer, int length)
 }
 
 /** ===========================================================================
+ *   @n@b wordLength()
+ *
+ *   @b Description
+ *   @n API to set the wordLength of SPI bus
+ *
+ *   @b Arguments
+ *   @verbatim
+        length [IN] spi word length in bits
+     @endverbatim
+ *
+ *   <b> Return Value </b>
+ *   @li                  CSL_SOK            - SPI read successful
+ *   @li                  CSL_ESYS_INVPARAMS - Invalid parameters
+ *
+ *  ===========================================================================
+ */
+
+int SPI_Class::setWordLength(unsigned int length)
+{
+    CSL_Status status;
+
+    SPI_WordLen len = (SPI_WordLen) length;
+    if(len > SPI_MAX_WORD_LEN)
+    {
+        return CSL_FAIL;
+    }
+
+    spiConfig.wLen = len;
+
+    status = SPI_config(spiHandle, &spiConfig);
+    if(CSL_SOK != status)
+    {
+        SPI_LOG_MSG_PRINT ("setClockDivider(): setClockDivider() API Failed");
+        SPI_LOG_MSG_PRINT ("\r\n");
+    }
+    return ((int) status);
+}
+
+
+/** ===========================================================================
+ *   @n@b setDataDelay()
+ *
+ *   @b Description
+ *   @n API to set the wordLength of SPI bus
+ *
+ *   @b Arguments
+ *   @verbatim
+        delay [IN] number of bits to delay 0-3
+     @endverbatim
+ *
+ *   <b> Return Value </b>
+ *   @li                  CSL_SOK            - SPI read successful
+ *   @li                  CSL_ESYS_INVPARAMS - Invalid parameters
+ *
+ *  ===========================================================================
+ */
+
+int SPI_Class::setDataDelay(unsigned int delay)
+{
+    CSL_Status status;
+
+    SPI_DataDly del = (SPI_DataDly) delay;
+    if(del > SPI_DATA_DLY_UNKNOWN)
+    {
+        return CSL_FAIL;
+    }
+
+    spiConfig.dataDelay = del;
+
+    status = SPI_config(spiHandle, &spiConfig);
+    if(CSL_SOK != status)
+    {
+        SPI_LOG_MSG_PRINT ("setClockDivider(): setClockDivider() API Failed");
+        SPI_LOG_MSG_PRINT ("\r\n");
+    }
+    return ((int) status);
+}
+
+/** ===========================================================================
  *   @n@b SPI_LOG_MSG_PRINT()
  *
  *   @b Description

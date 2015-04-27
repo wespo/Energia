@@ -112,6 +112,8 @@ class SPI_Class
         int transfer (int value);
         int write (unsigned int buffer[], int length);
         int read (unsigned int buffer[], int length);
+        int setWordLength(unsigned int length);
+        int setDataDelay(unsigned int delay);
 } ;
 
 extern SPI_Class SPI;
