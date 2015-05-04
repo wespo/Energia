@@ -1,0 +1,25 @@
+#######################################
+# Syntax Coloring Map matlabSerial
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+serial_connect
+serial_recv_array
+serial_send_array
+unsigned int recv();
+getCmd
+getDataIntLength
+getDataLongLength
+getDataIntPointer
+getDataLongPointer
+SerialCmd
+
+#######################################
+# Constants (LITERAL1)
+#######################################
