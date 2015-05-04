@@ -530,10 +530,7 @@ int SPI_Class::write (unsigned int *buffer, int length)
    //      swap32Bits (buffer, length);
    //  }
 
-    status = SPI_dataTransaction(spiHandle,
-                                 (Uint16 *)buffer,
-                                 (Uint16)(length),
-                                 SPI_WRITE);
+    status = SPI_dataTransaction(spiHandle, (Uint16 *)buffer, (Uint16)(length), SPI_WRITE);
     if(CSL_SOK != status)
     {
         SPI_LOG_MSG_PRINT ("write(): SPI Write Failed\r\n");
@@ -570,25 +567,22 @@ int SPI_Class::read (unsigned int *buffer, int length)
         return ((int)CSL_ESYS_INVPARAMS);
     }
 
-    status = SPI_dataTransaction(spiHandle,
-                                 (Uint16 *)buffer,
-                                 (Uint16)(length),
-                                 SPI_READ);
+    status = SPI_dataTransaction(spiHandle, (Uint16 *)buffer, (Uint16)(length), SPI_READ);
     if(CSL_SOK != status)
     {
         SPI_LOG_MSG_PRINT ("read(): SPI Read Failed\r\n");
     }
-    else
-    {
-       //  swapWords (buffer, length);
+    // else
+    // {
+    //     swapWords (buffer, length);
 
-       //  if (LSBFIRST == order)
-       //  {
-		     // If the User requests to receive LSB first, then swap all the 32
-		     //   bits of the User data 
-       //      swap32Bits (buffer, length);
-       //  }
-    }
+    //     if (LSBFIRST == order)
+    //     {
+		  //    If the User requests to receive LSB first, then swap all the 32
+		  //      bits of the User data 
+    //         swap32Bits (buffer, length);
+    //     }
+    // }
 
     return ((int)status);
 }

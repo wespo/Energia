@@ -222,7 +222,7 @@ int pinMode(unsigned short pinNumber, unsigned short direction)
         {
             return 0;
         }
-        return 1
+        return 1;
     }
     /* Read Old values of all the pins of the desired port */
     if (0 == port)
@@ -528,11 +528,13 @@ unsigned int digitalRead(int pinNumber)
     {
         Wire.endTransmission();
         Wire.begin();
+        Serial.println("GPIO ERROR!!!!");
         return (2);
     }
 
     if (1 != Wire.available())
     {
+        Serial.println("GPIO ERROR!!!!");
 		return (2);
 	}
 
