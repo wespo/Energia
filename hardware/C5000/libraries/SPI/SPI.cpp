@@ -297,6 +297,43 @@ void SPI_Class::setLoopBackMode(int value)
     SPI_setLoopBackMode(value);
 }
 
+
+/** ===========================================================================
+ *   @n@b setCSPin()
+ *
+ *   @b Description
+ *   @n API to set the Loop Back Mode of the SPI
+ *
+ *   @b Arguments
+ *   @verbatim
+        value - Value (0 or 1) that is to be set for the Loop Back field
+     @endverbatim
+ *
+ *   <b> Return Value </b>
+ *    @n None
+ *
+ *  ===========================================================================
+ */
+int SPI_Class::setCSPin(int value)
+{
+    CSL_Status status;
+
+    if(value >= SPI_CS_NUM_INVALID)
+    {
+        return CSL_FAIL;
+    }
+
+    spiConfig.csNum        = (SPI_HwMode) value;
+
+    status = SPI_config(spiHandle, &spiConfig);
+    if(CSL_SOK != status)
+    {
+        SPI_LOG_MSG_PRINT ("setClockDivider(): setClockDivider() API Failed");
+        SPI_LOG_MSG_PRINT ("\r\n");
+    }
+    return ((int) status);
+}
+
 /** ===========================================================================
  *   @n@b setBitOrder()
  *

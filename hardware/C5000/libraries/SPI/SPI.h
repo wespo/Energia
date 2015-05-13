@@ -109,6 +109,7 @@ class SPI_Class
         void setDataMode (int mode);
         void setLoopBackMode(int value);
         void setBitOrder(int order);
+        int setCSPin(int order);
         int transfer (int value);
         int write (unsigned int buffer[], int length);
         int read (unsigned int buffer[], int length);
