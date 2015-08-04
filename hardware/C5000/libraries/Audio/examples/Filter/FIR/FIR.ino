@@ -9,36 +9,15 @@
  */
 
 #include "Audio.h"
-#include "filter.h"
+#include "fir.h"
 #include "OLED.h"
 
-// Buffer to hold the Input Samples of left channel, for the FIR filter 
-int filterIn1[I2S_DMA_BUF_LEN];
-
-// Buffer to hold the Input Samples of right channel, for the FIR filter 
-int filterIn2[I2S_DMA_BUF_LEN];
-
-// Buffer to hold the Output Samples of left channel, from the FIR filter
-int filterOut1[I2S_DMA_BUF_LEN];
-
-// Buffer to hold the Output Samples of right channel, from the FIR filter
-int filterOut2[I2S_DMA_BUF_LEN];
-
-// Variable to indicate to the FIR Filtering section that the Input samples
-// are ready to be filtered
-unsigned short readyForFilter = 0;
-
-// Variable to indicate that the FIR filtering is completed and the filtered
-//  samples are available in the "filterOut" buffer
-unsigned short filterBufAvailable = 0;
-
-// Variable to switch between the data buffers of the Audio library
-unsigned short writeBufIndex = 0;
+FIRClass FIRL, FIRR; //FIR Filter objects for both channels
 
 // Length of the Coefficient Vector
-#define FILTER_LENGTH (202)
+#define FILTER_LENGTH (201)
 
-// Filter coefficients with 200 taps
+// Filter coefficients with 201 taps, 2kHz cutoff
 int coeffs[FILTER_LENGTH] = {
         7,      6,      4,      2,      0,     -2,     -5,     -7,     -9,
       -11,    -12,    -12,    -12,    -10,     -8,     -4,      0,      5,
@@ -62,76 +41,20 @@ int coeffs[FILTER_LENGTH] = {
       -10,      0,      9,     16,     21,     24,     26,     25,     23,
        19,     15,     10,      5,      0,     -4,     -8,    -10,    -12,
       -12,    -12,    -11,     -9,     -7,     -5,     -2,      0,      2,
-        4,      6,      7,      0
+        4,      6,      7
 };
 
-// Delay buffer used by the FIR filtering algorithm for Left Channel
-int delayBufferL[FILTER_LENGTH + 2];
-
-// Delay buffer used by the FIR filtering algorithm for Right Channel
-int delayBufferR[FILTER_LENGTH + 2];
-
-// DMA Interrupt Service Routine
-interrupt void dmaIsr(void)
+void processAudio() //put your signal processing code here.
 {
-    unsigned short ifrValue;
-
-    ifrValue = DMA.getInterruptStatus();
-    if ((ifrValue >> DMA_CHAN_ReadR) & 0x01)
-    {
-        /* Data read from codec is copied to filter input buffers.
-           Filtering is done after configuring DMA for next block of transfer
-           ensuring no data loss */
-        copyShortBuf(AudioC.audioInLeft[AudioC.activeInBuf],
-                     filterIn1, I2S_DMA_BUF_LEN);
-        copyShortBuf(AudioC.audioInRight[AudioC.activeInBuf],
-                     filterIn2, I2S_DMA_BUF_LEN);
-        readyForFilter = 1;
-    }
-    else if ((ifrValue >> DMA_CHAN_WriteR) & 0x01)
-    {
-        if (filterBufAvailable)
-        {
-            /* Filtered buffers need to be copied to audio out buffers as
-               audio library is configured for non-loopback mode */
-            writeBufIndex = (AudioC.activeOutBuf == FALSE)? TRUE: FALSE;
-            copyShortBuf(filterOut1, AudioC.audioOutLeft[writeBufIndex],
-                         I2S_DMA_BUF_LEN);
-            copyShortBuf(filterOut2, AudioC.audioOutRight[writeBufIndex],
-                         I2S_DMA_BUF_LEN);
-            filterBufAvailable = 0;
-        }
-    }
-
-    /* Calling AudioC.isrDma() will copy the buffers to Audio Out of the Codec,
-     * initiates next DMA transfers of Audio samples to and from the Codec
-     */
-    AudioC.isrDma();
-
-    // Check if filter buffers are ready. No filtering required for write interrupt
-    if (readyForFilter)
-    {
-        readyForFilter = 0;
-
-        // Filter Left Audio Channel
-        filter_fir(filterIn1, coeffs, filterOut1, delayBufferL,
-                   I2S_DMA_BUF_LEN, FILTER_LENGTH);
-        // Filter Right Audio Channel
-        filter_fir(filterIn2, coeffs, filterOut2, delayBufferR,
-                   I2S_DMA_BUF_LEN, FILTER_LENGTH);
-
-        filterBufAvailable = 1;
-    }
+  // Filter Left Audio Channel
+  FIRL.filter(AudioC.inputLeft, AudioC.outputLeft, AudioC.adcBufferSize);
+  // Filter Right Audio Channel
+  FIRR.filter(AudioC.inputRight, AudioC.outputRight, AudioC.adcBufferSize);
 }
 
-// Initializes OLED and Audio modules 
 void setup()
 {
     int status;
-    int index;
-
-    pinMode(LED0, OUTPUT);
-    digitalWrite(LED0, HIGH);
 
     //Initialize OLED module for status display	
     disp.oledInit();
@@ -139,28 +62,20 @@ void setup()
     disp.flip();    
     disp.setline(1);
 
-    // Clear all the data buffers
-    fillShortBuf(filterIn1, 0, I2S_DMA_BUF_LEN);    
-    fillShortBuf(filterIn2, 0, I2S_DMA_BUF_LEN);
-    fillShortBuf(filterOut1, 0, I2S_DMA_BUF_LEN);
-    fillShortBuf(filterOut2, 0, I2S_DMA_BUF_LEN);
-
-    /* Clear the delay buffers, which will be used by the FIR filtering
-       algorithm, These buffers need to be initialized to all zeroes in the
-       beginning of the FIR filtering algorithm */
-    fillShortBuf(delayBufferL, 0, (FILTER_LENGTH + 2));       
-    fillShortBuf(delayBufferR, 0, (FILTER_LENGTH + 2));       
+    /* Set up FIR filter for each chanel */
+    FIRL.init(coeffs, FILTER_LENGTH);
+    FIRR.init(coeffs, FILTER_LENGTH);
     
-    /* Audio library is configured for non-loopback mode. Gives enough time for
-       FIR filter processing in ISR */
+    /* Audio library is configured for non-loopback mode. */
     status = AudioC.Audio(TRUE);
-    if (status == 0)
+
+    if (status == 0) //on success, report ready on OLED display.
     {
         disp.print("FIR Filter ON");
-        AudioC.attachIntr(dmaIsr);
     }        
 }
 
-void loop()
+void loop() //Asynchronous non-signal processing code here.
 {
+  
 }

@@ -124,10 +124,12 @@ class AudioClass {
         int I2SDmaReadRight(void);
         int I2SDmaWriteLeft(void);
         int I2SDmaWriteRight(void);
-        int adcBufferSize;
-        int dacBufferSize;
+
 
     public:
+
+        int adcBufferSize;
+        int dacBufferSize;
         int Audio(void);
         int Audio(int process, int adc_buffer_size = I2S_DMA_BUF_LEN, int dac_buffer_size = I2S_DMA_BUF_LEN);
         /** Audio input - left channel */
@@ -195,9 +197,40 @@ class AudioClass {
         int LOR_RConF_Routing(int right);
 
         ~AudioClass(void); // Destructor
-        
+        friend interrupt void dmaIsr(void);
+        // // Buffer to hold the Input Samples of left channel, for the FIR filter 
+        // int inputLeft[I2S_DMA_BUF_LEN];
+
+        // // Buffer to hold the Input Samples of right channel, for the FIR filter 
+        // int inputRight[I2S_DMA_BUF_LEN];
+
+        // // Buffer to hold the Output Samples of left channel, from the FIR filter
+        // int outputLeft[I2S_DMA_BUF_LEN];
+
+        // // Buffer to hold the Output Samples of right channel, from the FIR filter
+        // int outputRight[I2S_DMA_BUF_LEN];
+        // Buffer to hold the Input Samples of left channel, for the FIR filter 
+        int *inputLeft;
+
+        // Buffer to hold the Input Samples of right channel, for the FIR filter 
+        int *inputRight;
+
+        // Buffer to hold the Output Samples of left channel, from the FIR filter
+        int *outputLeft;
+
+        // Buffer to hold the Output Samples of right channel, from the FIR filter
+        int *outputRight;
         private:
-        
+        // Variable to indicate to the FIR Filtering section that the Input samples
+        // are ready to be filtered
+        unsigned short readyForFilter;
+
+        // Variable to indicate that the FIR filtering is completed and the filtered
+        //  samples are available in the "filterOut" buffer
+        unsigned short filterBufAvailable;
+
+        // Variable to switch between the data buffers of the Audio library
+        unsigned short writeBufIndex;
 };
 
 extern AudioClass AudioC;

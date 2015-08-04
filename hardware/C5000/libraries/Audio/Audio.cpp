@@ -41,6 +41,8 @@
 
 #include "Audio.h"
 
+extern processAudio();
+interrupt void dmaIsr(void);
 /**
  * Class identifier declaration
  */
@@ -463,6 +465,28 @@ int AudioClass::Audio(void)
         status = init();
     }
 
+    // Clear all the data buffers
+    // fillShortBuf(inputLeft, 0, I2S_DMA_BUF_LEN);    
+    // fillShortBuf(inputRight, 0, I2S_DMA_BUF_LEN);
+    // fillShortBuf(outputLeft, 0, I2S_DMA_BUF_LEN);
+    // fillShortBuf(outputRight, 0, I2S_DMA_BUF_LEN);
+    outputLeft = (int*) audioOutLeft[activeOutBuf];
+    outputRight = (int*) audioOutRight[activeOutBuf];
+
+    inputRight = (int*) audioInLeft[activeInBuf];
+    inputLeft = (int*) audioInRight[activeInBuf];
+
+    attachIntr(dmaIsr);
+    // Variable to indicate to the FIR Filtering section that the Input samples
+    // are ready to be filtered
+    readyForFilter = 0;
+
+    // Variable to indicate that the FIR filtering is completed and the filtered
+    //  samples are available in the "filterOut" buffer
+    filterBufAvailable = 0;
+
+    // Variable to switch between the data buffers of the Audio library
+    writeBufIndex = 0;
     return (status);
 }
 
@@ -542,7 +566,31 @@ int AudioClass::Audio(int process, int adc_buffer_size, int dac_buffer_size)
 
         status = init();
     }
+    
+    // Clear all the data buffers
+    // fillShortBuf(inputLeft, 0, I2S_DMA_BUF_LEN);    
+    // fillShortBuf(inputRight, 0, I2S_DMA_BUF_LEN);
+    // fillShortBuf(outputLeft, 0, I2S_DMA_BUF_LEN);
+    // fillShortBuf(outputRight, 0, I2S_DMA_BUF_LEN);
+    outputLeft = (int*) audioOutLeft[activeOutBuf];
+    outputRight = (int*) audioOutRight[activeOutBuf];
 
+    inputRight = (int*) audioInLeft[activeInBuf];
+    inputLeft = (int*) audioInRight[activeInBuf];
+
+    attachIntr(dmaIsr);
+
+    // Variable to indicate to the FIR Filtering section that the Input samples
+    // are ready to be filtered
+    readyForFilter = 0;
+
+    // Variable to indicate that the FIR filtering is completed and the filtered
+    //  samples are available in the "filterOut" buffer
+    filterBufAvailable = 0;
+
+    // Variable to switch between the data buffers of the Audio library
+    writeBufIndex = 0;
+    
     return (status);
 }
 
@@ -2158,4 +2206,59 @@ int AudioClass::LOR_RConF_Routing(int right)
     status |= rset(15, value);
 
     return (status);
+}
+
+// DMA Interrupt Service Routine
+interrupt void dmaIsr(void)
+{
+    unsigned short ifrValue;
+
+    ifrValue = DMA.getInterruptStatus();
+    if ((ifrValue >> DMA_CHAN_ReadR) & 0x01)
+    {
+        /* Data read from codec is copied to filter input buffers.
+           Filtering is done after configuring DMA for next block of transfer
+           ensuring no data loss */
+        // copyShortBuf(AudioC.audioInLeft[AudioC.activeInBuf],
+        //              AudioC.inputLeft, I2S_DMA_BUF_LEN);
+        // copyShortBuf(AudioC.audioInRight[AudioC.activeInBuf],
+        //              AudioC.inputRight, I2S_DMA_BUF_LEN);
+
+        AudioC.inputLeft = (int*) AudioC.audioInLeft[AudioC.activeInBuf];
+        AudioC.inputRight = (int*) AudioC.audioInRight[AudioC.activeInBuf];
+
+        AudioC.readyForFilter = 1;
+    }
+    else if ((ifrValue >> DMA_CHAN_WriteR) & 0x01)
+    {
+        if (AudioC.filterBufAvailable)
+        {
+            /* Filtered buffers need to be copied to audio out buffers as
+               audio library is configured for non-loopback mode */
+            AudioC.writeBufIndex = (AudioC.activeOutBuf == FALSE)? TRUE: FALSE;
+            // copyShortBuf(AudioC.outputLeft, AudioC.audioOutLeft[AudioC.writeBufIndex],
+            //              I2S_DMA_BUF_LEN);
+            // copyShortBuf(AudioC.outputRight, AudioC.audioOutRight[AudioC.writeBufIndex],
+            //              I2S_DMA_BUF_LEN);
+
+            AudioC.outputLeft = (int*) AudioC.audioOutLeft[AudioC.activeOutBuf];
+            AudioC.outputRight = (int*) AudioC.audioOutRight[AudioC.activeOutBuf];
+            AudioC.filterBufAvailable = 0;
+        }
+    }
+
+    /* Calling AudioC.isrDma() will copy the buffers to Audio Out of the Codec,
+     * initiates next DMA transfers of Audio samples to and from the Codec
+     */
+    AudioC.isrDma();
+
+    // Check if filter buffers are ready. No filtering required for write interrupt
+    if (AudioC.readyForFilter)
+    {
+        AudioC.readyForFilter = 0;
+
+        processAudio();
+
+        AudioC.filterBufAvailable = 1;
+    }
 }

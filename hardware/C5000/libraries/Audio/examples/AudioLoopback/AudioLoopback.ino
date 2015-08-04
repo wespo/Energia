@@ -13,10 +13,8 @@
 #include "Audio.h"
 #include "OLED.h"
 
-interrupt void dmaIsr(void)
+void processAudio()
 {
-    // Copies audio samples received from audio In to the audio Out of the Codec
-    AudioC.isrDma();
 }
 
 void setup()
@@ -39,9 +37,6 @@ void setup()
     if(status == 0)
     {  
         disp.print("Audio ON");
-
-        //Enable interrupts and start audio data transfer
-	AudioC.attachIntr(dmaIsr);    
     }
 }
 
