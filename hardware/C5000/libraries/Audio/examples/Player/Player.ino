@@ -35,28 +35,6 @@ int readCircBufferIndex = 0;
 int codecCircBufferIndex = 0;
 int indivBufferIndex = 0;
 
-// DMA Interrupt Service Routine
-interrupt void dmaIsr(void)
-{
-    Uint16 ifrValue;
-
-    ifrValue = DMA.readInterruptStatus();
-    if ((ifrValue >> DMA_CHAN_ReadR) & 0x01)
-    {
-        /* If the buffer is read from the input wave file, send it to the Audio
-           Out of the Codec */
-        if (true == bufferRead[codecCircBufferIndex])
-        {
-            bufferCopy();
-        }
-    }
-
-    /* Calling AudioC.isrDma() will copy the buffers to Audio Out of the Codec,
-     * initiates next DMA transfers of Audio samples to and from the Codec
-     */
-    AudioC.isrDma();
-}
-
 /*
  * Opens next wave file present under Root Directory, reads the number of
  * channels of the wave file and finally reads the sampling rate of the file to
@@ -199,7 +177,7 @@ void setup()
         stopExample = true;
     }
 
-    retStatus = AudioC.Audio();
+    retStatus = AudioC.Audio(TRUE);
     if (retStatus != 0)
     {
         // Error in initializing the Audio module, hence stop the recording
@@ -210,7 +188,6 @@ void setup()
     	// Configure codec sampling rate based on wave file sampling rate
         AudioC.setSamplingRate(samplingRate);
         // Configure interrupts and start audio transfer
-        AudioC.attachIntr(dmaIsr);
     }
 }
 
@@ -218,24 +195,21 @@ void setup()
  * This API does a simple copy of Audio samples to the Audio Out buffers of the
  * Codec, from the buffers which hold the audio data read from the wave file
  */
-void bufferCopy()
+void processAudio()
 {
     int index;
     int index2;
-
+  if (true == bufferRead[codecCircBufferIndex])
+  {
     if (CHANNEL_MONO == channelType) // Mono Channel
     {
         // Left channel and right channel data will be same
 
         // Copying Left Channel Audio sample Data
-        copyShortBuf(&waveFileData[codecCircBufferIndex][indivBufferIndex],
-                     AudioC.audioInLeft[AudioC.activeInBuf],
-                     I2S_DMA_BUF_LEN);
+        copyShortBuf(&waveFileData[codecCircBufferIndex][indivBufferIndex],AudioC.outputLeft,I2S_DMA_BUF_LEN);
 
         // Copying Right Channel Audio sample Data*/
-        copyShortBuf(AudioC.audioInLeft[AudioC.activeInBuf],
-                     AudioC.audioInRight[AudioC.activeInBuf],
-                     I2S_DMA_BUF_LEN);
+        copyShortBuf(AudioC.outputLeft,AudioC.outputRight,I2S_DMA_BUF_LEN);
 
         indivBufferIndex += I2S_DMA_BUF_LEN;
     }
@@ -246,8 +220,8 @@ void bufferCopy()
         // Copying Left and right samples alternatively
         for (index = 0; index < I2S_DMA_BUF_LEN; index++)
         {
-            AudioC.audioInLeft[AudioC.activeInBuf][index]  = waveFileData[codecCircBufferIndex][index2++];
-            AudioC.audioInRight[AudioC.activeInBuf][index] = waveFileData[codecCircBufferIndex][index2++];
+            AudioC.outputLeft[index] = waveFileData[codecCircBufferIndex][index2++];
+            AudioC.outputRight[index] = waveFileData[codecCircBufferIndex][index2++];
         }
         
         indivBufferIndex += (2 * I2S_DMA_BUF_LEN);
@@ -267,6 +241,7 @@ void bufferCopy()
             codecCircBufferIndex = 0;
         }
     }
+  }
 }
 
 /*
@@ -286,8 +261,7 @@ void loop()
 
     if ((stopExample == false) && (bufferSent[readCircBufferIndex] == true))
     {
-        bytesRead = fileHandle.read(&waveFileData[readCircBufferIndex][0],
-                                    SINGLE_BUFFER_SIZE);
+        bytesRead = fileHandle.read(&waveFileData[readCircBufferIndex][0],SINGLE_BUFFER_SIZE);
         if (0 == bytesRead)
         {
             // Open next wave file, if present on the SD card 

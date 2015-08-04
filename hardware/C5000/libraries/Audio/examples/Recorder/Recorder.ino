@@ -204,55 +204,33 @@ void updateWavFileHeader(long samplingRate, int noOfChannels)
 
 /* Copies the audio Rx data into Tx buffers and copies the audio data
    to file write buffers */
-interrupt void dmaIsr(void)
+void processAudio()
 {
-    unsigned short ifrValue;
-    int            index;
-    int            readyForWriting;
 
-    readyForWriting = 0;
-
-    ifrValue = DMA.getInterruptStatus();
-    if ((ifrValue >> DMA_CHAN_ReadR) & 0x01)
-    {
-        /* Data read from codec is copied to file input buffer */
-        copyShortBuf(AudioC.audioInLeft[AudioC.activeInBuf],
-                     writeToFileL, I2S_DMA_BUF_LEN);
-        copyShortBuf(AudioC.audioInRight[AudioC.activeInBuf],
-                     writeToFileR, I2S_DMA_BUF_LEN);
-        readyForWriting = 1;
-    }
-
-    AudioC.isrDma();
-
-    if ((false == stopRecording) &&
-        (1 == readyForWriting)   &&
-        (buffAvailable[codecIndex] == false))
+    if ((false == stopRecording) && (buffAvailable[codecIndex] == false))
     {
         if (CHANNEL_STEREO == channelType) // Recording in Stereo mode
         {
-            for (index = 0; index < I2S_DMA_BUF_LEN; index++)
+            for (int index = 0; index < I2S_DMA_BUF_LEN; index++)
             {
-                writeBuf[codecIndex][writeBufIndex++] = writeToFileL[index];
-                writeBuf[codecIndex][writeBufIndex++] = writeToFileR[index];
+                writeBuf[codecIndex][writeBufIndex++] = AudioC.inputLeft[index];
+                writeBuf[codecIndex][writeBufIndex++] = AudioC.inputRight[index];
             }
 
             /* Audio data of the Wave file should be in little endian form, hence
                swap the bytes before writing it to the file */
-            swapBytes(&writeBuf[codecIndex][writeBufIndex - (2 * I2S_DMA_BUF_LEN)],
-                      (2 * I2S_DMA_BUF_LEN));
+            swapBytes(&writeBuf[codecIndex][writeBufIndex - (2 * I2S_DMA_BUF_LEN)],(2 * I2S_DMA_BUF_LEN));
         }
         else /* Recording in Mono mode */
         {
-            for (index = 0; index < I2S_DMA_BUF_LEN; index++)
+            for (int index = 0; index < I2S_DMA_BUF_LEN; index++)
             {
-                writeBuf[codecIndex][writeBufIndex++] = writeToFileL[index];
+                writeBuf[codecIndex][writeBufIndex++] = AudioC.inputLeft[index];
             }
 
             /* Audio data of the Wave file should be in little endian form, hence
                swap the bytes before writing it to the file */
-            swapBytes(&writeBuf[codecIndex][writeBufIndex - I2S_DMA_BUF_LEN],
-                      I2S_DMA_BUF_LEN);
+            swapBytes(&writeBuf[codecIndex][writeBufIndex - I2S_DMA_BUF_LEN],I2S_DMA_BUF_LEN);
         }
 
         if (SINGLE_BUFFER_SIZE == writeBufIndex)
@@ -335,15 +313,13 @@ void setup()
         stopRecording = true;
     }
 
-    status = AudioC.Audio();
+    status = AudioC.Audio(TRUE);
     if (status != 0)
     {
         stopRecording = true;
     }
 
     AudioC.setSamplingRate(samplingRate);
-
-    AudioC.attachIntr(dmaIsr);
 }
 
 void swapBytes(int *buffer, int length)
