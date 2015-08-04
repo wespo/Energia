@@ -21,53 +21,25 @@ float fs = 48000;
 int numBits = 32;
 volatile unsigned long tuningWord = 97391549;
 float DDSGain = 2;
-// Variable to switch between the data buffers of the Audio library
-unsigned short writeBufIndex = 0;
 // Variable to indicate to the FIR Filtering section that the Input samples
 // are ready to be filtered
 // DMA Interrupt Service Routine
 bool DDSReadyFlag = 0;
-interrupt void dmaIsr(void)
+void processAudio()
 {
-    unsigned short ifrValue;
+	for(int i = 0; i < I2S_DMA_BUF_LEN; i++)
+	{
+		unsigned int value; //value to output
+		unsigned long tempPhase; //calculated phase for this sample
 
-    ifrValue = DMA.getInterruptStatus();
-    if ((ifrValue >> DMA_CHAN_WriteR) & 0x01)
-    {
-         if(DDSReadyFlag)
-         {
-          
-          //copy it out.
-            /* Filtered buffers need to be copied to audio out buffers as
-               audio library is configured for non-loopback mode */
-            writeBufIndex = (AudioC.activeOutBuf == FALSE)? TRUE: FALSE;
-            copyShortBuf(DDS_buffer, AudioC.audioOutLeft[writeBufIndex], I2S_DMA_BUF_LEN);
-            copyShortBuf(DDS_buffer, AudioC.audioOutRight[writeBufIndex], I2S_DMA_BUF_LEN);
-           DDSReadyFlag = false; 
-         }
-    }
+		//increment the phase accumulator by the value stored in the tuning word.
+		phaseAccumulator += tuningWord; //32 bits
 
-    /* Calling AudioC.isrDma() will copy the buffers to Audio Out of the Codec,
-     * initiates next DMA transfers of Audio samples to and from the Codec
-     */
-    AudioC.isrDma();
-    if(DDSReadyFlag == false)
-    {
-      //generate I2S_DMA_BUF_LEN samples of DDS output
-      for(int i = 0; i < I2S_DMA_BUF_LEN; i++)
-      {
-        unsigned int value; //value to output
-        unsigned long tempPhase; //calculated phase for this sample
-        
-        //increment the phase accumulator by the value stored in the tuning word.
-        phaseAccumulator += tuningWord; //32 bits
-      
-        //peel off top 12 bits
-        tempPhase = (unsigned long)(phaseAccumulator >> 18); //use only top 14 bits of 32 bit phase accumulator
-        DDS_buffer[i] = (int)(phase_to_amplitude[tempPhase] * DDSGain);
-      }
-      DDSReadyFlag = true;
-    }
+		//peel off top 12 bits
+		tempPhase = (unsigned long)(phaseAccumulator >> 18); //use only top 14 bits of 32 bit phase accumulator
+		AudioC.outputRight[i] = (int)(phase_to_amplitude[tempPhase] * DDSGain);
+	}
+    copyShortBuf(AudioC.outputRight, AudioC.outputLeft, I2S_DMA_BUF_LEN);
     
 }
 
@@ -92,7 +64,6 @@ void setup()
     if (status == 0)
     {
         disp.print("DDS ON");
-        AudioC.attachIntr(dmaIsr);
     }        
 }
 
