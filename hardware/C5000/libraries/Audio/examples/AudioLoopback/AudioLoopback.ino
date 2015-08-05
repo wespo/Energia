@@ -15,6 +15,8 @@
 
 void processAudio()
 {
+  copyShortBuf(AudioC.inputLeft, AudioC.outputLeft, AudioC.adcBufferSize);
+  copyShortBuf(AudioC.inputRight, AudioC.outputRight, AudioC.adcBufferSize);
 }
 
 void setup()
@@ -28,7 +30,7 @@ void setup()
     disp.setline(1);
     
     // Initialize audio modules
-    status = AudioC.Audio();
+    status = AudioC.Audio(TRUE);
     /* Here, Audio library is configured for loopback mode.
        Calling AudioC.Audio() with out any argument sets the Loopback mode. It
        gives control to the Audio library to directly copy any audio samples
