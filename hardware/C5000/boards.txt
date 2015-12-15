@@ -1,4 +1,14 @@
 ##############################################################
+c5000s.name=C5517 - All Modes
+c5000s.upload.protocol=NULL
+c5000s.upload.maximum_size=8192
+c5000s.bootloader.lock_bits=NULL
+c5000s.build.mcu=core:3
+c5000s.build.f_cpu=1000000L
+c5000s.build.core=c5000
+c5000s.build.variant=c5517
+
+##############################################################
 c5535sh.name=C5535 - Shield Mode
 c5535sh.upload.protocol=NULL
 c5535sh.upload.maximum_size=8192
