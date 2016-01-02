@@ -42,24 +42,26 @@
 
 #include "WavFile.h"
 
+#pragma DATA_ALIGN(32)
+int waveFileData[CIRCULAR_BUFFER_SIZE][SINGLE_BUFFER_SIZE] = {0};
 /*
  * Opens next wave file present under Root Directory, reads the number of
  * channels of the wave file and finally reads the sampling rate of the file to
  * set the sampling rate of the Audio Codec
  */
 
-void WAVClass::emptyBuffer()
+void WAVRead::emptyBuffer()
 {
 	for(int i = 0; i < CIRCULAR_BUFFER_SIZE; i++)
 	{
-		for(int j = 0; j < SINGLE_BUFFER_SIZE; j++)
+		for(int j = 0; j < bufferSize; j++)
 		{
 			waveFileData[i][j] = 0;
 		}
 	}
 }
 
-void WAVClass::init()
+void WAVRead::init(unsigned int bufferLen)
 {
 	emptyBuffer();
 	readCircBufferIndex = 0;
@@ -68,6 +70,20 @@ void WAVClass::init()
 
 	int  retStatus;
     int  index;
+
+    bufferSize = bufferLen;
+    if(bufferSize > SINGLE_BUFFER_SIZE)
+    {
+        bufferSize = SINGLE_BUFFER_SIZE;
+    }
+
+    // waveFileData = new int*[CIRCULAR_BUFFER_SIZE];
+
+    // for(int i = 0; i < CIRCULAR_BUFFER_SIZE; i++)
+    // {
+    //     waveFileData[i] = new int[bufferSize]();
+    // }
+
 
     for(int i = 0; i < MAX_FILENAME_LEN; i++)
     {
@@ -107,10 +123,11 @@ void WAVClass::init()
         // Error in initializing the SD module, hence stop the recording
         stopped = true;
     }
+    isInitialized = true;
 }
 
 
-int WAVClass::openWavFile(void)
+int WAVRead::openWavFile(void)
 {
     int  index;
     char localName[MAX_FILENAME_LEN];
@@ -185,7 +202,7 @@ int WAVClass::openWavFile(void)
 }
 
 // Function to swap bytes of an input buffer of specified length
-void WAVClass::swapBytes(int *input, int length)
+void WAVRead::swapBytes(int *input, int length)
 {
     int index;
     int temp;
@@ -199,14 +216,18 @@ void WAVClass::swapBytes(int *input, int length)
     }
 }
 
-int WAVClass::readBuffer()
+int WAVRead::readBuffer()
 {
+    if(!isInitialized)
+    {
+        return 0;
+    }
 	int bytesRead;
 	int status;
 
 	if ((stopped == false) && (bufferSent[readCircBufferIndex] == true))
 	{
-		bytesRead = fileHandle.read(&waveFileData[readCircBufferIndex][0],SINGLE_BUFFER_SIZE);
+		bytesRead = fileHandle.read(&waveFileData[readCircBufferIndex][0],bufferSize);
 		if (0 == bytesRead)
 		{
 			emptyBuffer();
@@ -215,7 +236,7 @@ int WAVClass::readBuffer()
 
 		/* Audio data in the wave file will be in Little Endian format, hence
 		   swap the bytes to obtain the actual data */
-		swapBytes(waveFileData[readCircBufferIndex], SINGLE_BUFFER_SIZE);
+		swapBytes(waveFileData[readCircBufferIndex], bufferSize);
 		bufferSent[readCircBufferIndex] = false;
 		bufferRead[readCircBufferIndex] = true;
 
@@ -229,8 +250,13 @@ int WAVClass::readBuffer()
 	return bytesRead;
 }
 
-void WAVClass::copyWavBuffer(int* leftSamples, int* rightSamples)
+void WAVRead::copyWavBuffer(int* leftSamples, int* rightSamples, int length)
 {
+    if(!isInitialized)
+    {
+        return;
+    }
+
 	int index;
     int index2;
 	if (true == bufferRead[codecCircBufferIndex])
@@ -240,29 +266,29 @@ void WAVClass::copyWavBuffer(int* leftSamples, int* rightSamples)
 			// Left channel and right channel data will be same
 
 			// Copying Left Channel Audio sample Data
-			copyShortBuf(&waveFileData[codecCircBufferIndex][indivBufferIndex],leftSamples,I2S_DMA_BUF_LEN);
+			copyShortBuf(&waveFileData[codecCircBufferIndex][indivBufferIndex],leftSamples,length);
 
 			// Copying Right Channel Audio sample Data*/
-			copyShortBuf(leftSamples,rightSamples,I2S_DMA_BUF_LEN);
+			copyShortBuf(leftSamples,rightSamples,length);
 
-			indivBufferIndex += I2S_DMA_BUF_LEN;
+			indivBufferIndex += length;
 		}
 		else // Stereo Channel
 		{
 			index2 = indivBufferIndex;
 
 			// Copying Left and right samples alternatively
-			for (index = 0; index < I2S_DMA_BUF_LEN; index++)
+			for (index = 0; index < length; index++)
 			{
 				leftSamples[index] = waveFileData[codecCircBufferIndex][index2++];
 				rightSamples[index] = waveFileData[codecCircBufferIndex][index2++];
 			}
 
-			indivBufferIndex += (2 * I2S_DMA_BUF_LEN);
+			indivBufferIndex += (2 * length);
 		}
 
 			// Update buffer indexes	
-		if (SINGLE_BUFFER_SIZE == indivBufferIndex)
+		if (bufferSize == indivBufferIndex)
 		{
 			indivBufferIndex = 0;
 			bufferSent[codecCircBufferIndex] = true;
@@ -276,4 +302,309 @@ void WAVClass::copyWavBuffer(int* leftSamples, int* rightSamples)
 			}
 		}
 	}
+}
+
+WAVWrite::WAVWrite(void)
+{
+    recFileSize = 0;
+    recordCounter = 0;
+    audioLibWriteBufIndex = 0;
+    stopRecording = true;
+    codecIndex = 0;
+    writeBufIndex = 0;
+    writeToFileIndex = 0;
+
+    fileCounter = 0;
+
+    for(int i = 0; i < 44; i++)
+    {
+        waveFileHeader[i] = 0;
+    }
+    for(int i = 0; i < 2*NO_OF_WRITE_BUFFERS; i++)
+    {
+        buffAvailable[i] = false;
+    }
+}
+
+void WAVWrite::swapBytes(int *buffer, int length)
+{
+    int index;
+    int temp;
+
+    for (index = 0; index < length; index++)
+    {
+        temp = (buffer[index] & 0xFF) << 8;
+        buffer[index] = (buffer[index] & 0xFF00) >> 8;
+
+        buffer[index] |= temp;
+    }
+}
+
+// Forms wave file header
+void WAVWrite::updateWavFileHeader()
+{
+    long audioFileSize;
+    long byteRate;
+
+    /* When the 'recordCounter' value is calculated, it might be in fractions,
+       hence set the file size in terms of 'recordCounter' value */
+    audioFileSize = recordCounter * (2*bufferSize); // Size of PCM samples 
+    audioFileSize += 44;                      // Size of WAV header
+
+    // Update Header with the Chunk Id: "RIFF", in Big Endian Mode
+    waveFileHeader[0] = 'R';
+    waveFileHeader[1] = 'I';
+    waveFileHeader[2] = 'F';
+    waveFileHeader[3] = 'F';
+
+    /* Update Header with the Chunk Size, this size is equal to total file size
+       minus 8 bytes. This is the size of the rest of the chunk following this
+       number. It should be written in Little Endian mode */
+    waveFileHeader[4] = (audioFileSize - 8) & 0xFF;
+    waveFileHeader[5] = (audioFileSize >> 8) & 0xFF;
+    waveFileHeader[6] = (audioFileSize >> 16) & 0xFF;
+    waveFileHeader[7] = (audioFileSize >> 24) & 0xFF;
+
+    // Update Header with the File format: "WAVE", in Big Endian Mode
+    waveFileHeader[8]  = 'W';
+    waveFileHeader[9]  = 'A';
+    waveFileHeader[10] = 'V';
+    waveFileHeader[11] = 'E';
+
+    // Update Header with the Sub Chunk Id: "fmt ", in Big Endian Mode
+    waveFileHeader[12] = 'f';
+    waveFileHeader[13] = 'm';
+    waveFileHeader[14] = 't';
+    waveFileHeader[15] = ' ';
+
+    /* Update Header with the Sub Chunk1 Size, this size is 16 for PCM data.
+       It should be written in Little Endian mode */
+    waveFileHeader[16] = 16;
+    waveFileHeader[17] = 0;
+    waveFileHeader[18] = 0;
+    waveFileHeader[19] = 0;
+
+    /* Update Header with the Audio Format. For PCM format, its value should
+       be 1. It should be written in Little Endian mode */
+    waveFileHeader[20] = 1;
+    waveFileHeader[21] = 0;
+
+    /* Update Header with the Number of channels present in the Audio file.
+       Mono = 1, Stereo = 2, it should be written in Little Endian mode */
+    waveFileHeader[22] = numChannels;
+    waveFileHeader[23] = 0;
+
+
+    /* Update Header with the Sampling rate of the Audio file. It should be
+       written in Little Endian mode */
+    waveFileHeader[24] = (sampleRate & 0xFF);
+    waveFileHeader[25] = (sampleRate >> 8) & 0xFF;
+    waveFileHeader[26] = (sampleRate >> 16) & 0xFF;
+    waveFileHeader[27] = (sampleRate >> 24) & 0xFF;
+
+    /* Update Header with the Byte Rate of the Audio File. Its value is equal
+       to, ByteRate = SampleRate * NumChannels * BitsPerSample / 8.
+       It should be written in Little Endian mode */
+    byteRate = sampleRate * numChannels * 16 / 8;
+    waveFileHeader[28] = (byteRate & 0xFF);
+    waveFileHeader[29] = (byteRate >> 8) & 0xFF;
+    waveFileHeader[30] = (byteRate >> 16) & 0xFF;
+    waveFileHeader[31] = (byteRate >> 24) & 0xFF;
+
+    /* Update Header with the Block Align. Its value is,
+       BlockAlign = NumChannels * BitsPerSample / 8. In Little Endian Mode */
+    waveFileHeader[32] = numChannels * 16 / 8;
+    waveFileHeader[33] = 0;
+
+    /* Update Header with the Bits Per Sample, 8 bits = 8, 16 bits = 16.
+       In Little Endian Mode */
+    waveFileHeader[34] = 16;
+    waveFileHeader[35] = 0;
+
+    // Update Header with Sub Chunk2 ID: "data". Its in Big Endian Mode
+    waveFileHeader[36] = 'd';
+    waveFileHeader[37] = 'a';
+    waveFileHeader[38] = 't';
+    waveFileHeader[39] = 'a';
+
+    /* Update Header with the Sub Chunk2 Size, this size is equal to total
+       file size minus 24 bytes. Its in Little Endian Mode */
+    waveFileHeader[40] = (audioFileSize - 24) & 0xFF;  /* LSB of Sub Chunk Size */
+    waveFileHeader[41] = ((audioFileSize - 24) >> 8) & 0xFF;
+    waveFileHeader[42] = ((audioFileSize - 24) >> 16) & 0xFF;
+    waveFileHeader[43] = ((audioFileSize - 24) >> 24) & 0xFF; /* MSB of Sub Chunk Size */
+}
+
+void WAVWrite::captureAudio(int* audioStream, int audioBufSize)
+{
+    if ((false == stopRecording) && (buffAvailable[codecIndex] == false))
+    {
+        for (int index = 0; index < audioBufSize; index++)
+        {
+            waveFileData[codecIndex][writeBufIndex++] = audioStream[index];
+        }
+
+        /* Audio data of the Wave file should be in little endian form, hence
+           swap the bytes before writing it to the file */
+        swapBytes(&waveFileData[codecIndex][writeBufIndex - audioBufSize],audioBufSize);
+
+        if (bufferSize == writeBufIndex)
+        {
+            writeBufIndex = 0;
+            buffAvailable[codecIndex] = true;
+
+            if ((writeBuffers - 1) == codecIndex)
+            {
+                codecIndex = 0;
+            }
+            else
+            {
+                codecIndex++;
+            }
+        }
+    }
+}
+
+void WAVWrite::captureAudio(int* audioStreamL, int* audioStreamR, int audioBufSize)
+{
+    if ((false == stopRecording) && (buffAvailable[codecIndex] == false))
+    {
+        for (int index = 0; index < audioBufSize; index++)
+        {
+            waveFileData[0][codecIndex*bufferSize + writeBufIndex++] = audioStreamL[index];
+            waveFileData[0][codecIndex*bufferSize + writeBufIndex++] = audioStreamR[index];
+        }
+
+        /* Audio data of the Wave file should be in little endian form, hence
+           swap the bytes before writing it to the file */
+        swapBytes(&waveFileData[codecIndex][writeBufIndex - (2 * audioBufSize)],(2 * audioBufSize));
+
+        if (bufferSize == writeBufIndex)
+        {
+            writeBufIndex = 0;
+            buffAvailable[codecIndex] = true;
+
+            if ((writeBuffers - 1) == codecIndex)
+            {
+                codecIndex = 0;
+            }
+            else
+            {
+                codecIndex++;
+            }
+        }
+    }
+}
+
+void WAVWrite::begin(long sr, int channels, int duration)
+{
+    
+    bool retStatus = SD.begin();
+    int  status;
+    stopRecording = true;
+    if (TRUE == retStatus)
+    {
+        fileHandle = SD.open("Record.wav", FILE_WRITE);
+        if (fileHandle)
+        {
+            // 'recFileSize' will hold the file size in terms of bytes
+            sampleRate = sr;
+            recFileSize  = duration;
+            recFileSize *= sr;
+            recFileSize *= 2; // File Size in bytes
+            bufferSize = (3-channels) * SINGLE_BUFFER_SIZE/2;
+            writeBuffers = channels * NO_OF_WRITE_BUFFERS;
+            numChannels = channels;
+            if (CHANNEL_STEREO == channels)
+            {
+                // Double the file size in case of stereo channel
+                recFileSize *= 2;
+                /* File.write() will write (2*SINGLE_BUFFER_SIZE) bytes of data at once, 
+                 * hence the value (recordCounter * (2*SINGLE_BUFFER_SIZE)) will give the 
+                 * recorded file size.
+                 */
+            }
+            
+            recordCounter = recFileSize / (2*bufferSize);
+            Serial.println(recordCounter);
+            /* recordCounter value might contain fractional part, which will not
+             * be taken into account because of conversion from float to long.
+             * In such case, increase the recordCounter value by 1 so that
+             * recorded file duration will not be less than RECORD_DURATION
+             */
+            if (recFileSize % recordCounter)
+            {
+                recordCounter++;
+            }
+
+            updateWavFileHeader();
+            fileHandle.write(waveFileHeader, 44);
+            fileHandle.flush();
+            stopRecording = false;
+        }
+        else
+        {
+            stopRecording = true;
+            fileHandle.close();
+            xfOn();
+        }
+    }
+    else
+    {
+        stopRecording = true;
+        fileHandle.close();
+            xfOn();
+    }
+
+    status = AudioC.Audio(TRUE);
+    if (status != 0)
+    {
+        stopRecording = true;
+        fileHandle.close();
+        xfOn();
+    }
+
+    AudioC.setSamplingRate(sampleRate);
+}
+volatile bool xf = false;
+bool WAVWrite::storeAudio()
+{
+    if(false == stopRecording)
+    {
+        // if(xf)
+        // {
+        //     xfOn();
+        //     xf = false;
+        // }
+        // else
+        // {
+        //     xfOff();
+        //     xf = true;
+        // }
+        if (true == buffAvailable[writeToFileIndex])
+        {
+            // Data is ready to be written to SD card
+            fileHandle.write(&waveFileData[writeToFileIndex][0], bufferSize);
+            fileCounter++;
+            buffAvailable[writeToFileIndex] = false;
+
+            if ((writeBuffers - 1) == writeToFileIndex)
+            {
+                writeToFileIndex = 0;
+            }
+            else
+            {
+                writeToFileIndex++;
+            }
+        }
+
+        if (fileCounter == recordCounter)
+        {
+            stopRecording = true;
+
+            fileHandle.close();
+            return FALSE;
+        }
+        return TRUE;
+    }
 }

@@ -13,7 +13,7 @@
 #include "WavFile.h"
 #include "OLED.h"
 
-WAVClass WavPlayer;
+WAVRead WavPlayer;
 
 // Initializes OLED, Audio and SD modules
 void setup()
