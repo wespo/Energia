@@ -263,11 +263,11 @@ typedef struct CSL_CdcInitStructApp {
 				needed during Configuration of the Interrupt Endpoint		*/
 	void                    (*intrHandler)();
 	/** \brief  Pointer to the Data Bulk IN Callback Function 				*/
-	void                    (*bulkInCallback)();
+	void                    (*bulkInCallback)(...);
 	/** \brief  Pointer to the Data Bulk OUT Callback Function		 		*/
-	void                    (*bulkOutCallback)();
+	void                    (*bulkOutCallback)(...);
 	/** \brief  Pointer to the Communication Interrupt IN Callback Function */
-	void                    (*intrInCallback)();
+	void                    (*intrInCallback)(...);
 } CSL_CdcInitStructApp;
 
 /** \brief  MSc application class handle                                     */
