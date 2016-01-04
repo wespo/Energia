@@ -466,7 +466,7 @@ void WAVWrite::captureAudio(int* audioStreamL, int* audioStreamR, int audioBufSi
 
         /* Audio data of the Wave file should be in little endian form, hence
            swap the bytes before writing it to the file */
-        swapBytes(&waveFileData[codecIndex][writeBufIndex - (2 * audioBufSize)],(2 * audioBufSize));
+        swapBytes(&waveFileData[0][codecIndex*bufferSize + writeBufIndex - (2 * audioBufSize)],(2 * audioBufSize));
 
         if (bufferSize == writeBufIndex)
         {
@@ -573,7 +573,7 @@ bool WAVWrite::storeAudio()
         if (true == buffAvailable[writeToFileIndex])
         {
             // Data is ready to be written to SD card
-            fileHandle.write(&waveFileData[writeToFileIndex][0], bufferSize);
+            fileHandle.write(&waveFileData[0][writeToFileIndex*bufferSize], bufferSize);
             fileCounter++;
             buffAvailable[writeToFileIndex] = false;
 
