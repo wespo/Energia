@@ -23,18 +23,16 @@ void setup()
 
     pinMode(LED0, OUTPUT);
 
-    //Initialize OLED module for file name display	
+    //Initialize OLED module for file name display  
     disp.oledInit();
     disp.clear();
     disp.setOrientation(1);
     disp.setline(0);
     disp.print("Audio Player");
-    
-    WavPlayer.init();
-    WavPlayer.openWavFile();
-    printFileInfo();
 
-    AudioC.Audio(TRUE);
+    AudioC.Audio(TRUE);   
+    WavPlayer.init();
+    delay(1000); //let codec settle
 }
 
 /*
@@ -56,15 +54,13 @@ void processAudio()
  * wave file, then it plays that file. When it doesn't find any more wave files,
  * it just stops reading data.
  */
+ 
+int bytesRead = 0;
 void loop()
 {
-  int bytesRead = WavPlayer.readBuffer();
   if(bytesRead == 0)
   {
-    int status = WavPlayer.openWavFile();
-    AudioC.setSamplingRate(WavPlayer.samplingRate);
-    printFileInfo();
-    delay(500); //delay a bit to allow sample rate to stabilize
+    WavPlayer.openWavFile();
     if(WavPlayer.stopped)
     {
       disp.setline(1);
@@ -72,7 +68,10 @@ void loop()
       disp.print("Stopped");
       while(1){}; //loop forever.
     }
+    printFileInfo();
+    AudioC.setSamplingRate(WavPlayer.samplingRate);
   }
+  bytesRead = WavPlayer.readBuffer();
 }
 
 void printFileInfo()

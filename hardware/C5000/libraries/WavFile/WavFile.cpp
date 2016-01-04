@@ -101,18 +101,7 @@ void WAVRead::init(unsigned int bufferLen)
     if (TRUE == retStatus)
     {
         rootDirHandle = SD.open("/");
-        if (rootDirHandle)
-        {
-            /* Open the 1st wave file that exists under Root directory of the
-               SD Card */
-            retStatus = openWavFile();
-            if (0 != retStatus)
-            {
-                // Wave file not present, hence stop the recording
-                stopped = true;
-            }
-        }
-        else
+        if (!rootDirHandle)
         {
             // Error in opening Root directory, hence stop the recording
             stopped = true;
