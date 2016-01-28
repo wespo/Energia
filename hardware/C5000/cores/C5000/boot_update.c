@@ -393,6 +393,34 @@ Uint16 updateBootLoader(void)
 		status = read_UART(hUart, buffer, 64, 0xFFFF, &bytesRead);
 #endif
 		bytesReceived = 0;
+
+		/* Writing the Acknowledgement String */
+	    buffer[0] = 'O';
+	    buffer[1] = 'K';
+	    buffer[2] = '\0';
+	    status = UART_write(hUart, buffer, 3, 0);
+
+		//read file length
+#ifdef USE_MSEC_WAIT_FOR_UART
+		status = read_UART(hUart, buffer, 4, 100, &bytesRead);
+#else
+		status = read_UART(hUart, buffer, 4, 0xFFFF, &bytesRead);
+#endif	
+		long targetBytesRead  = ((buffer[3]<<8) & 0xFF00) | buffer[2];
+		targetBytesRead <<= 16;
+		targetBytesRead &= 0xFFFF0000;
+		targetBytesRead |= ((buffer[1]<<8) & 0xFF00) | buffer[0];
+		long totalBytesRead = 0;
+		bytesRead = 0;
+#ifdef USE_MSEC_WAIT_FOR_UART
+/* Dummy read to flush data */
+		status = read_UART(hUart, buffer, 64, 10, &bytesRead);
+#else
+		/* Dummy read to flush data */
+		status = read_UART(hUart, buffer, 64, 0xFFFF, &bytesRead);
+#endif
+		bytesRead = 0;
+		long checksum = 0;
 	    while (1)
 	    {
 	        /* Writing the Acknowledgement String */
@@ -411,7 +439,6 @@ Uint16 updateBootLoader(void)
 			    asm("	BIT(ST1, #13) = #1");
 				ledOn = 1;
 			}
-
 #ifdef USE_MSEC_WAIT_FOR_UART
 	        /* Reading the bootloader contents, in chunks of 512 bytes each */
 	        status = read_UART(hUart, buffer, UART_BUFFER_SIZE, 20,
@@ -429,6 +456,9 @@ Uint16 updateBootLoader(void)
 	        {
 	            buffer[index / 2] = (buffer[index] << 8);
 	            buffer[index / 2] |= buffer[index + 1];
+	            checksum += (buffer[index/2] & 0x00FF);
+	            checksum += ((buffer[index/2]>>8) & 0x00FF);
+	            //checksum += buffer[index/2];
 	        }
 
 	        /* Write data to the file */
@@ -449,7 +479,7 @@ Uint16 updateBootLoader(void)
 	            PRINT_MSG(("\nWriting Data successful\n"));
 #endif
 	        }
-
+	        totalBytesRead += bytesRead;
 	        /* Checking whether all the contents have been read or not */
 	        if(bytesRead < 512)
 	        {
@@ -458,6 +488,49 @@ Uint16 updateBootLoader(void)
 	            buffer[2] = '\0';
 	            status = UART_write(hUart, buffer, 3, 0);
 
+#ifdef USE_MSEC_WAIT_FOR_UART
+		/* Dummy read to flush data */
+		status = read_UART(hUart, buffer, 64, 10, &bytesRead);
+#else
+		/* Dummy read to flush data */
+		status = read_UART(hUart, buffer, 64, 0xFFFF, &bytesRead);
+#endif
+	            //read final checksum
+		#ifdef USE_MSEC_WAIT_FOR_UART
+				status = read_UART(hUart, buffer, 4, 50, &bytesRead);
+		#else
+				status = read_UART(hUart, buffer, 4, 0xFFFF, &bytesRead);
+		#endif	
+				long receivedChecksum = ((buffer[3]<<8) & 0xFF00) | buffer[2];
+				receivedChecksum <<= 16;
+				receivedChecksum &= 0xFFFF0000;
+				receivedChecksum |= ((buffer[1]<<8) & 0xFF00) | buffer[0];
+				//receivedChecksum = 0x0000ABCD;
+				//check file length:
+				if(totalBytesRead != targetBytesRead)
+				{
+					ata_error = ATA_delete(pAtaFile);
+					// asm("	BIT(ST1, #13) = #1");
+					// ata_error = ATA_write(pAtaFile, (AtaUint16 *)&totalBytesRead,2);
+					// ata_error = ATA_write(pAtaFile, (AtaUint16 *)&targetBytesRead,2);
+					return(ata_error);
+				}
+
+				if(checksum != receivedChecksum)
+				{
+					ata_error = ATA_delete(pAtaFile);
+					// asm("	BIT(ST1, #13) = #1");
+					// ata_error = ATA_write(pAtaFile, (AtaUint16 *)&checksum,2);
+					// ata_error = ATA_write(pAtaFile, (AtaUint16 *)&receivedChecksum,2);
+					return(ata_error);
+				}
+
+				
+				/* Writing the Acknowledgement String */
+		        buffer[0] = 'O';
+		        buffer[1] = 'K';
+		        buffer[2] = '\0';
+		        status = UART_write(hUart, buffer, 3, 0);
 	            break;
 	        }
 	    }
