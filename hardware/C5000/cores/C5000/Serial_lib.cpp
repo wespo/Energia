@@ -74,7 +74,7 @@ static int uartIoExpander (void)
 {
     int retStatus;
 
-#ifdef CHIP_C5517
+#ifdef BOARD_DSPSHIELD_V0
     /* Set ARD_UART_CNTRL1 to 1 */
     retStatus = ioExpander_Setup();
     if (0 == retStatus)

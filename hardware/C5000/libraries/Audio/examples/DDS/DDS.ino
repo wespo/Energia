@@ -20,7 +20,7 @@ float fo = 2000; //frequency of DDS Output
 float fs = 48000;
 int numBits = 32;
 volatile unsigned long tuningWord = 97391549;
-float DDSGain = 2;
+int DDSGain = 16000;
 // Variable to indicate to the FIR Filtering section that the Input samples
 // are ready to be filtered
 // DMA Interrupt Service Routine
@@ -37,7 +37,7 @@ void processAudio()
 
 		//peel off top 12 bits
 		tempPhase = (unsigned long)(phaseAccumulator >> 18); //use only top 14 bits of 32 bit phase accumulator
-		AudioC.outputRight[i] = (int)(phase_to_amplitude[tempPhase] * DDSGain);
+		AudioC.outputRight[i] = (int)(phase_to_amplitude[tempPhase]);
 	}
     copyShortBuf(AudioC.outputRight, AudioC.outputLeft, I2S_DMA_BUF_LEN);
     

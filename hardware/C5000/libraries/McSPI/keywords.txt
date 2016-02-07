@@ -1,0 +1,32 @@
+#######################################
+# Syntax Coloring Map For McSPI
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+McSPI_Class	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+end	KEYWORD2
+config	KEYWORD2
+read	KEYWORD2
+write	KEYWORD2
+isRxFull	KEYWORD2
+isTxFull	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+McSPI_POLL_MODE	LITERAL1
+McSPI_INTERRUPT_MODE	LITERAL1
+McSPI_DMA_MODE	LITERAL1
+McSPI_CHIPSELECT_0	LITERAL1
+McSPI_CHIPSELECT_1	LITERAL1
+McSPI_CHIPSELECT_2	LITERAL1
+McSPI_CHIPSELECT_3	LITERAL1

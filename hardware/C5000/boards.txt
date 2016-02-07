@@ -1,5 +1,5 @@
 ##############################################################
-c5000s.name=C5517 - All Modes
+c5000s.name=DSPShield V0 (5517) - All
 c5000s.upload.protocol=NULL
 c5000s.upload.maximum_size=8192
 c5000s.bootloader.lock_bits=NULL
@@ -9,7 +9,7 @@ c5000s.build.core=c5000
 c5000s.build.variant=c5517
 
 ##############################################################
-c5535sh.name=C5535 - Shield Mode
+c5535sh.name=DSPShield V1 (5535) - Shield Mode
 c5535sh.upload.protocol=NULL
 c5535sh.upload.maximum_size=8192
 c5535sh.bootloader.lock_bits=NULL
@@ -19,7 +19,7 @@ c5535sh.build.core=c5000
 c5535sh.build.variant=c5535_Shield
 
 ##############################################################
-c5535st.name=C5535 - Standalone Mode
+c5535st.name=DSPShield V1 (5535) - Standalone Mode
 c5535st.upload.protocol=NULL
 c5535st.upload.maximum_size=8192
 c5535st.bootloader.lock_bits=NULL
@@ -27,3 +27,23 @@ c5535st.build.mcu=core:3
 c5535st.build.f_cpu=1000000L
 c5535st.build.core=c5000
 c5535st.build.variant=c5535_Standalone
+
+##############################################################
+c5535sh2.name=DSPShield V2 (5517) - Shield Mode
+c5535sh2.upload.protocol=NULL
+c5535sh2.upload.maximum_size=8192
+c5535sh2.bootloader.lock_bits=NULL
+c5535sh2.build.mcu=core:3
+c5535sh2.build.f_cpu=1000000L
+c5535sh2.build.core=c5000
+c5535sh2.build.variant=c5517_r2_Shield
+
+##############################################################
+c5535st2.name=DSPShield V2 (5517) - Standalone Mode
+c5535st2.upload.protocol=NULL
+c5535st2.upload.maximum_size=8192
+c5535st2.bootloader.lock_bits=NULL
+c5535st2.build.mcu=core:3
+c5535st2.build.f_cpu=1000000L
+c5535st2.build.core=c5000
+c5535st2.build.variant=c5517_r2_Standalone

@@ -87,7 +87,6 @@ static void delay_msecs(Uint32 msecs)
 #else
     delay = msecs * 1000 * 6;
 #endif
-
 	for (index = 0; index < delay; index++)
 	{
 		asm("\tNOP");

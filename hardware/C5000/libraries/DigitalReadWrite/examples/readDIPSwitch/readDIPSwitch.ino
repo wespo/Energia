@@ -13,7 +13,11 @@ unsigned int pinVal;
 void setup()
 {
     Serial.begin(9600);
-    // Read the state of SW1
+}
+
+void loop()
+{
+  // Read the state of SW1
     pinVal = digitalRead(SW1);
     if (pinVal)
     {
@@ -56,8 +60,5 @@ void setup()
     {
         Serial.print("DIP Switch SW4 is OFF\n");
     }
-}
-
-void loop()
-{
+    delay(1000);
 }

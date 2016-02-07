@@ -1,0 +1,24 @@
+#######################################
+# Syntax Coloring Map For UHPI
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+UHPI	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+end	KEYWORD2
+config	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+UHPI_GPIO_INTERRUPT_ENABLE	LITERAL1
+UHPI_GPIO_INTERRUPT_DISABLE	LITERAL1
+

@@ -77,7 +77,8 @@ int pinMode(unsigned short pinNumber, unsigned short direction)
     Uint16     i2cWriteBuf[2];
     Uint16     configOld;
 
-#ifdef CHIP_C5517
+
+#ifdef BOARD_DSPSHIELD_V0
     if ((pinNumber > SW7) || ((direction != INPUT) && (direction != OUTPUT)))
 #else
     if ((pinNumber > SW1) || ((direction != INPUT) && (direction != OUTPUT)))
