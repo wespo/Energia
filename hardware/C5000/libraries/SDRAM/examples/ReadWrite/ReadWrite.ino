@@ -22,7 +22,7 @@ void setup()
 {
     int              result;
     unsigned short   index;
-
+    Serial.begin(9600);
     Serial.println("SDRAM Read/Write Demo!\n");
 
     for (index = 0; index < SDRAM_BUF_SIZE; index++)
