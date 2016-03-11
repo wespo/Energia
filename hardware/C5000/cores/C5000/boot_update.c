@@ -82,7 +82,11 @@ static void delay_msecs(Uint32 msecs)
 	volatile Uint32 index;
 	volatile Uint32 delay;
 
-#ifdef CHIP_C5517
+#ifdef BOARD_DSPSHIELD_V0
+    delay = msecs * 1000 * 9;
+#elif defined BOARD_DSPSHIELD_V1
+    delay = msecs * 1000 * 6;
+#elif defined BOARD_DSPSHIELD_V2
     delay = msecs * 1000 * 9;
 #else
     delay = msecs * 1000 * 6;
@@ -177,14 +181,15 @@ Uint16 updateBootLoader(void)
 
 #ifdef USE_MSEC_WAIT_FOR_UART
 
-
-#ifdef C5535_EZDSP
+#ifdef BOARD_DSPSHIELD_V2
     /* Read the command to update the Bootloader */
     status = read_UART(hUart, buffer, COMMAND_SIZE_LENGTH, 8000,
 	                   &bytesRead);
-#else
-
-#ifdef CHIP_C5517
+#elif defined BOARD_DSPSHIELD_V1
+    /* Read the command to update the Bootloader */
+    status = read_UART(hUart, buffer, COMMAND_SIZE_LENGTH, 8000,
+	                   &bytesRead);
+#elif defined BOARD_DSPSHIELD_V0
     /* Read the command to update the Bootloader */
     status = read_UART(hUart, buffer, COMMAND_SIZE_LENGTH, 2500,
 	                   &bytesRead);
@@ -194,27 +199,23 @@ Uint16 updateBootLoader(void)
 	                   &bytesRead);
 #endif
 
-#endif
-
-
 #else /* #ifdef USE_MSEC_WAIT_FOR_UART */
-
-#ifdef C5535_EZDSP
+#ifdef BOARD_DSPSHIELD_V2
     /* Read the command to update the Bootloader */
     status = read_UART(hUart, buffer, COMMAND_SIZE_LENGTH, 0x1FFFFFF,
 	                   &bytesRead);
-#else
-
-#ifdef CHIP_C5517
+#elif defined BOARD_DSPSHIELD_V1
+    /* Read the command to update the Bootloader */
+    status = read_UART(hUart, buffer, COMMAND_SIZE_LENGTH, 0x1FFFFFF,
+	                   &bytesRead);
+#elif defined BOARD_DSPSHIELD_V0
     /* Read the command to update the Bootloader */
     status = read_UART(hUart, buffer, COMMAND_SIZE_LENGTH, 0xFFFFFF,
 	                   &bytesRead);
 #else
     /* Read the command to update the Bootloader */
-    status = read_UART(hUart, buffer, COMMAND_SIZE_LENGTH, 0x8FFFFF,
+    status = read_UART(hUart, buffer, COMMAND_SIZE_LENGTH, 0x1FFFFF,
 	                   &bytesRead);
-#endif
-
 #endif
 
 #endif /* #ifdef USE_MSEC_WAIT_FOR_UART */
@@ -250,7 +251,7 @@ Uint16 updateBootLoader(void)
 		ioExpander_Write(1, 7, 1);
 		ioExpander_Write(1, 6, 1);
 
-#ifdef CHIP_C5517
+#ifdef BOARD_DSPSHIELD_V0
 		ioExpander_Write(1, 4, 1);
 #else
 
