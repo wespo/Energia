@@ -467,7 +467,7 @@ unsigned int TwoWire::write(unsigned int data)
 	        /* Not supported in master mode */
 	    }
 	}
-
+	delayMicroseconds(1);
     return (bytesWritten);
 }
 
