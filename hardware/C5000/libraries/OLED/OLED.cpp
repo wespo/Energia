@@ -148,7 +148,7 @@ static int send(Uint16 comdat, Uint16 data)
 	{
         handleErrors(status);
 	}
-	csl_waitusec(0xFFF);
+	//csl_waitusec(0xFFF);
 
 	return status;
 }
@@ -176,7 +176,7 @@ static int multiSend(Uint16 *data, Uint16 len)
     	cmd[x] = data[x];
     }
 
-    csl_waitusec(1000);
+    //csl_waitusec(1000);
 
     status = writeI2C(I2C_LCD_ADDR, cmd, len);
 	if(status != CSL_SOK)
@@ -184,7 +184,7 @@ static int multiSend(Uint16 *data, Uint16 len)
         handleErrors(status);
 	}
 
-	csl_waitusec(0xFFF);
+	//csl_waitusec(0xFFF);
 
     return status;
 }
