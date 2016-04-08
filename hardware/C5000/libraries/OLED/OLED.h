@@ -80,6 +80,7 @@ public:
   int print(long value);
   int print(char character);
   int print(long value, int base);
+  void plot(int* vector, int len, bool bar);
   void write(unsigned char);
 
   void noDisplay();

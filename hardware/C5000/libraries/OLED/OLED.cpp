@@ -1191,3 +1191,51 @@ void OLED::resetCursor(int line)
 	}
 }
 
+/** ===========================================================================
+ *   @n@b plot(vector, length)
+ *
+ *   @b Description
+ *   @n plots the values as a bargraph or dot graph
+ *
+ *   @b Arguments
+ *   @verbatim
+ *      int line    <- line number
+     @endverbatim
+ *
+ *   <b> Return Value </b>
+ *    @n None
+ *
+ *  ===========================================================================
+ */
+
+void OLED::plot(int* vector, int length, bool bar=false)
+{
+	if(length > 96)
+	{
+		length = 96;
+	}
+	int values[96];
+	for(int i = 0; i < 96; i++)
+    {
+      if(bar)
+      {
+        values[i] = ~(0xFFFF << (vector[i]/2048)+1); //make a 16 bit "line" out of each bin
+      }
+      else
+      {
+        values[i] = (0x0001 << (vector[i]/2048)); //make a 16 bit "dot" out of each bin
+      }
+    }
+    resetCursor(1); //because it is a full extra command to change lines:
+	//display is broken into two lines, fraw each.
+    for(int i = 0; i < length; i++)
+    {
+      write(values[i]);
+    }
+    resetCursor(0);
+    for(int i = 0; i < length; i++)
+    {
+      write(values[i] >> 8);
+    }
+}
+
