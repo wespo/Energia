@@ -144,6 +144,13 @@ int RTCClass::setTime(RTCTime *pRtcTime)
 
 	status = CSL_ESYS_INVPARAMS;
 
+	#ifdef CHIP_C5517
+		// Enable RTC Registers as writeable 
+		asm(" *port(#0x1C27) = #0x0001 "); // un-isolate CVDD_RTC power domain 
+		asm(" *port(#0x196C) = #0xF1E0 "); // RTC writeable unlock key 
+		asm(" *port(#0x196D) = #0x95A4 ");
+	#endif
+
     if(pRtcTime != NULL)
 	{
 		rtcTime.mSecs = pRtcTime->msecs;
@@ -153,6 +160,13 @@ int RTCClass::setTime(RTCTime *pRtcTime)
 
         status = RTC_setTime(&rtcTime);
 	}
+
+	#ifdef CHIP_C5517
+		// Disable RTC Registers as writeable 
+		asm(" *port(#0x1C27) = #0x0000 "); 
+		asm(" *port(#0x196C) = #0x0000 "); 
+		asm(" *port(#0x196D) = #0x0000 ");
+	#endif
 
     return status;
 }
@@ -181,6 +195,13 @@ int RTCClass::setDate(RTCDate *pRtcDate)
 
 	status = CSL_ESYS_INVPARAMS;
 
+	#ifdef CHIP_C5517
+		// Enable RTC Registers as writeable 
+		asm(" *port(#0x1C27) = #0x0001 "); // un-isolate CVDD_RTC power domain 
+		asm(" *port(#0x196C) = #0xF1E0 "); // RTC writeable unlock key 
+		asm(" *port(#0x196D) = #0x95A4 ");
+	#endif
+    
     if(pRtcDate != NULL)
 	{
 		rtcDate.day   = pRtcDate->day;
@@ -189,6 +210,13 @@ int RTCClass::setDate(RTCDate *pRtcDate)
 
         status = RTC_setDate(&rtcDate);
     }
+
+    #ifdef CHIP_C5517
+		// Disable RTC Registers as writeable 
+		asm(" *port(#0x1C27) = #0x0000 ");
+		asm(" *port(#0x196C) = #0x0000 ");
+		asm(" *port(#0x196D) = #0x0000 ");
+	#endif
 
     return status;
 }
