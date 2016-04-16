@@ -70,7 +70,7 @@ void RTCClass::init(void)
 {
 
 	CSL_RtcConfig    rtcConfig;
-
+	started = false;
     RTC_reset();
 
 	rtcConfig.rtcyear  = 0;
@@ -89,8 +89,6 @@ void RTCClass::init(void)
 	rtcConfig.rtcseca   = 0;
 	rtcConfig.rtcmSeca  = 0;
 
-	rtcConfig.rtcintcr  = 0x803F;
-
 	RTC_config(&rtcConfig);
 }
 
@@ -105,6 +103,47 @@ void RTCClass::init(void)
 void RTCClass::start(void)
 {
     RTC_start();
+    started = true;
+}
+
+
+/** ===========================================================================
+ *   @n@b openRegisters
+ *
+ *   @b Description
+ *   @n enables writing of RTC registers on C5517. Does nothing on other CPUs
+ *
+ *  ===========================================================================
+ */
+void RTCClass::openRegisters()
+{
+	#ifdef CHIP_C5517
+		// Enable RTC Registers as writeable 
+		asm(" *port(#0x1C27) = #0x0001 "); // un-isolate CVDD_RTC power domain 
+		asm(" *port(#0x196C) = #0xF1E0 "); // RTC writeable unlock key 
+		asm(" *port(#0x196D) = #0x95A4 ");
+
+		delayMicroseconds(50);
+	#endif
+}
+
+/** ===========================================================================
+ *   @n@b closeRegisters
+ *
+ *   @b Description
+ *   @n disables writing of RTC registers on C5517. Does nothing on other CPUs
+ *
+ *  ===========================================================================
+ */
+void RTCClass::closeRegisters()
+{
+	#ifdef CHIP_C5517
+		delayMicroseconds(50);
+		// Enable RTC Registers as writeable 
+		asm(" *port(#0x1C27) = #0x0000 "); // un-isolate CVDD_RTC power domain 
+		asm(" *port(#0x196C) = #0x0000 "); // RTC writeable unlock key 
+		asm(" *port(#0x196D) = #0x0000 ");
+	#endif
 }
 
 /** ===========================================================================
@@ -143,13 +182,11 @@ int RTCClass::setTime(RTCTime *pRtcTime)
     CSL_RtcTime    rtcTime;
 
 	status = CSL_ESYS_INVPARAMS;
-
-	#ifdef CHIP_C5517
-		// Enable RTC Registers as writeable 
-		asm(" *port(#0x1C27) = #0x0001 "); // un-isolate CVDD_RTC power domain 
-		asm(" *port(#0x196C) = #0xF1E0 "); // RTC writeable unlock key 
-		asm(" *port(#0x196D) = #0x95A4 ");
-	#endif
+	if(!started)
+	{
+		start();
+	}
+	openRegisters();
 
     if(pRtcTime != NULL)
 	{
@@ -161,12 +198,51 @@ int RTCClass::setTime(RTCTime *pRtcTime)
         status = RTC_setTime(&rtcTime);
 	}
 
-	#ifdef CHIP_C5517
-		// Disable RTC Registers as writeable 
-		asm(" *port(#0x1C27) = #0x0000 "); 
-		asm(" *port(#0x196C) = #0x0000 "); 
-		asm(" *port(#0x196D) = #0x0000 ");
-	#endif
+	closeRegisters();
+
+    return status;
+}
+
+/** ===========================================================================
+ *   @n@b setTime
+ *
+ *   @b Description
+ *   @n Sets RTC time.
+ *
+ *   @b Arguments
+ *   @verbatim
+ *      hours (0-24)
+ *		minutes (0-59)
+ *		seconds (0-59)
+ *		milliseconds (0-999)
+     @endverbatim
+ *
+ *   <b> Return Value </b>  CSL_Status
+ *   @li                    CSL_SOK             - Set time is successful
+ *   @li                    CSL_ESYS_INVPARAMS  - Time Parameters are invalid
+ *
+ *  ===========================================================================
+ */
+int RTCClass::setTime(int hours, int minutes, int seconds, int milliseconds)
+{
+    CSL_Status     status;
+    CSL_RtcTime    rtcTime;
+
+	status = CSL_ESYS_INVPARAMS;
+	if(!started)
+	{
+		start();
+	}
+	openRegisters();
+
+	rtcTime.mSecs = milliseconds;
+	rtcTime.secs  = seconds;
+	rtcTime.mins  = minutes;
+	rtcTime.hours = hours;
+
+    status = RTC_setTime(&rtcTime);
+
+	closeRegisters();
 
     return status;
 }
@@ -195,12 +271,12 @@ int RTCClass::setDate(RTCDate *pRtcDate)
 
 	status = CSL_ESYS_INVPARAMS;
 
-	#ifdef CHIP_C5517
-		// Enable RTC Registers as writeable 
-		asm(" *port(#0x1C27) = #0x0001 "); // un-isolate CVDD_RTC power domain 
-		asm(" *port(#0x196C) = #0xF1E0 "); // RTC writeable unlock key 
-		asm(" *port(#0x196D) = #0x95A4 ");
-	#endif
+	if(!started)
+	{
+		start();
+	}
+
+	openRegisters();
     
     if(pRtcDate != NULL)
 	{
@@ -211,16 +287,53 @@ int RTCClass::setDate(RTCDate *pRtcDate)
         status = RTC_setDate(&rtcDate);
     }
 
-    #ifdef CHIP_C5517
-		// Disable RTC Registers as writeable 
-		asm(" *port(#0x1C27) = #0x0000 ");
-		asm(" *port(#0x196C) = #0x0000 ");
-		asm(" *port(#0x196D) = #0x0000 ");
-	#endif
+	closeRegisters();
 
     return status;
 }
+/** ===========================================================================
+ *   @n@b setDate
+ *
+ *   @b Description
+ *   @n Reads RTC time.
+ *
+ *   @b Arguments
+ *   @verbatim
+ *      day 1-31
+ *		month 1-12
+ *		year 0-9999
+     @endverbatim
+ *
+ *   <b> Return Value </b>  CSL_Status
+ *   @li                    CSL_SOK             - Reading time is successful
+ *   @li                    CSL_ESYS_INVPARAMS  - Time Parameters are invalid
+ *
+ *  ===========================================================================
+ */
+int RTCClass::setDate(int day, int month, int year)
+{
+    CSL_Status     status;
+    CSL_RtcDate    rtcDate;
 
+	status = CSL_ESYS_INVPARAMS;
+
+	if(!started)
+	{
+		start();
+	}
+
+	openRegisters();
+
+	rtcDate.day   = day;
+	rtcDate.month = month;
+	rtcDate.year  = year;
+
+    status = RTC_setDate(&rtcDate);
+
+	closeRegisters();
+
+    return status;
+}
 /** ===========================================================================
  *   @n@b getTime
  *
@@ -260,6 +373,107 @@ int RTCClass::getTime(RTCTime *pRtcTime)
     return status;
 }
 
+
+/** ===========================================================================
+ *   @n@b hours
+ *
+ *   @b Description
+ *   @n Reads RTC time.
+ *
+ *   @b Arguments
+ *   @verbatim
+ 
+     @endverbatim
+ *
+ *   <b> Return Value </b>  hours
+ *
+ *  ===========================================================================
+ */
+int RTCClass::hours()
+{
+    CSL_Status     status;
+    CSL_RtcTime    rtcTime;
+
+	status = RTC_getTime(&rtcTime);
+
+    return rtcTime.hours;
+}
+
+/** ===========================================================================
+ *   @n@b minutes
+ *
+ *   @b Description
+ *   @n Reads RTC time.
+ *
+ *   @b Arguments
+ *   @verbatim
+ 
+     @endverbatim
+ *
+ *   <b> Return Value </b>  minutes
+ *
+ *  ===========================================================================
+ */
+int RTCClass::minutes()
+{
+    CSL_Status     status;
+    CSL_RtcTime    rtcTime;
+
+	status = RTC_getTime(&rtcTime);
+
+    return rtcTime.mins;
+}
+
+/** ===========================================================================
+ *   @n@b seconds
+ *
+ *   @b Description
+ *   @n Reads RTC time.
+ *
+ *   @b Arguments
+ *   @verbatim
+ 
+     @endverbatim
+ *
+ *   <b> Return Value </b>  seconds
+ *
+ *  ===========================================================================
+ */
+int RTCClass::seconds()
+{
+    CSL_Status     status;
+    CSL_RtcTime    rtcTime;
+
+	status = RTC_getTime(&rtcTime);
+
+    return rtcTime.secs;
+}
+
+/** ===========================================================================
+ *   @n@b milliseconds
+ *
+ *   @b Description
+ *   @n Reads RTC time.
+ *
+ *   @b Arguments
+ *   @verbatim
+ 
+     @endverbatim
+ *
+ *   <b> Return Value </b>  milliseconds
+ *
+ *  ===========================================================================
+ */
+int RTCClass::milliseconds()
+{
+    CSL_Status     status;
+    CSL_RtcTime    rtcTime;
+
+	status = RTC_getTime(&rtcTime);
+
+    return rtcTime.mSecs;
+}
+
 /** ===========================================================================
  *   @n@b getDate
  *
@@ -296,6 +510,85 @@ int RTCClass::getDate(RTCDate *pRtcDate)
 	}
 
     return status;
+}
+
+/** ===========================================================================
+ *   @n@b month
+ *
+ *   @b Description
+ *   @n Reads RTC date
+ *
+ *   @b Arguments
+ *   @verbatim
+ *      pRtcDate    - Pointer to RTC date structure
+     @endverbatim
+ *
+ *   <b> Return Value </b>  month
+ *
+ *  ===========================================================================
+ */
+int RTCClass::month()
+{
+    CSL_Status     status;
+    CSL_RtcDate    rtcDate;
+
+	
+	status = RTC_getDate(&rtcDate);
+
+    return rtcDate.month;
+}
+
+/** ===========================================================================
+ *   @n@b day
+ *
+ *   @b Description
+ *   @n Reads RTC date
+ *
+ *   @b Arguments
+ *   @verbatim
+ *      pRtcDate    - Pointer to RTC date structure
+     @endverbatim
+ *
+ *   <b> Return Value </b>  day
+ *
+ *  ===========================================================================
+ */
+int RTCClass::day()
+{
+    CSL_Status     status;
+    CSL_RtcDate    rtcDate;
+
+	
+	status = RTC_getDate(&rtcDate);
+
+    return rtcDate.day;
+}
+
+
+/** ===========================================================================
+ *   @n@b year
+ *
+ *   @b Description
+ *   @n Reads RTC date
+ *
+ *   @b Arguments
+ *   @verbatim
+ *      pRtcDate    - Pointer to RTC date structure
+     @endverbatim
+ *
+ *   <b> Return Value </b>  year
+ *
+ *  ===========================================================================
+ */
+int RTCClass::year()
+{
+    CSL_Status     status;
+    CSL_RtcDate    rtcDate;
+
+	
+	status = RTC_getDate(&rtcDate);
+
+    return rtcDate.year;
 }
 
 /** ===========================================================================
@@ -380,5 +673,30 @@ int RTCClass::getAlarm(RTCTime *pRtcTime, RTCDate *pRtcDate)
     return status;
 }
 
+
+void RTCClass::setCompileTimeAndDate()
+{
+    char timeStr[3] = {0};
+
+    memcpy(timeStr, __TIME__, 2);
+    int hours = atoi(timeStr);
+    memcpy(timeStr, __TIME__+3, 2);
+    int mins  = atoi(timeStr);
+    memcpy(timeStr, __TIME__+6, 2);
+    int secs  = atoi(timeStr);
+
+    setTime(hours, mins, secs, 0);
+
+    char s_month[5];
+    int month, day, year;
+    
+    static const char month_names[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
+
+    sscanf(__DATE__, "%s %d %d", s_month, &day, &year);
+
+    month = (strstr(month_names, s_month)-month_names)/3 + 1;
+
+    setDate(day, month, year);
+}
 
 

@@ -83,11 +83,25 @@ class RTCClass {
 	    void start(void);
 	    void stop(void);
 	    int setTime(RTCTime *pRtcTime);
+	    int setTime(int hours, int minutes = 0, int seconds = 0, int milliseconds = 0);
 	    int setDate(RTCDate *pRtcDate);
+	    int setDate(int day, int month = 1, int year = 0);
 	    int getTime(RTCTime *pRtcTime);
 	    int getDate(RTCDate *pRtcDate);
 	    int setAlarm(RTCTime *pRtcTime, RTCDate *pRtcDate);
 	    int getAlarm(RTCTime *pRtcTime, RTCDate *pRtcDate);
+	    int hours();
+	    int minutes();
+	    int seconds();
+	    int milliseconds();
+	    int month();
+	    int day();
+	    int year();
+	    void setCompileTimeAndDate();
+	private:
+		void openRegisters();
+		void closeRegisters();
+		bool started;
 };
 
 extern RTCClass RTC;
