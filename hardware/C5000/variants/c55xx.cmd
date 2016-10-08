@@ -11,7 +11,8 @@ MEMORY
     SARAM0(RX)    : origin = 0010000h length = 038000h            
     SARAM1(RW)    : origin = 0048000h length = 002000h  
     SARAM2(RW)    : origin = 004A000h length = 002000h  
-    SARAM3(RW)    : origin = 004C000h length = 002000h  
+    SARAM3(RW)    : origin = 004C000h length = 002000h
+    SDRAM(RW)     : origin = 0050000h length = 800000h
     
 }
 
@@ -28,6 +29,7 @@ SECTIONS
   .sysmem       : > DATA1
   .const        : > SARAM0
   .cio	        : > SARAM0
+  .extmem       : > SDRAM
   USB_buffer1   : > SARAM1
   USB_buffer2   : > SARAM2 
   USB_buffer3   : > SARAM3 , fill =0   
