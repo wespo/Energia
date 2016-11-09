@@ -14,7 +14,7 @@
   - Sends output vector
 */
 
-#include "matlabSerial.h"
+#include "serial_array.h"
 #include <OLED.h>
 
 // Baud rate
