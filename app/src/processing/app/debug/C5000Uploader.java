@@ -55,10 +55,10 @@ public class C5000Uploader extends Uploader{
 		String basePath = Base.getBasePath();
 		Collection params = new ArrayList();
 
-		params.add("-p" + "c55xx");
-        params.add("-f" + buildPath + File.separator + "bootimg.bin");
-		params.add("-C" + basePath + File.separator + "avrdude.conf");
-		params.add("-P" + Preferences.get("serial.port"));
+		//params.add("-p" + "c55xx");
+		//params.add("-C" + basePath + File.separator + "avrdude.conf");
+		params.add(buildPath + File.separator + "bootimg.bin");
+		params.add(Preferences.get("serial.port"));
 
 		return c5000avrdude(params);
 	}
@@ -72,10 +72,10 @@ public class C5000Uploader extends Uploader{
 		List commandDownloader = new ArrayList();
 
 		if ( Base.isLinux() || Base.isMacOS() ) {
-			commandDownloader.add(Base.getBasePath() + "/avrdude");
+			commandDownloader.add(Base.getBasePath() + "pydude"); //was avrdude
 		}
 		else {
-			commandDownloader.add(Base.getBasePath() + "\\avrdude");
+			commandDownloader.add(Base.getBasePath() + "pydude"); //was avrdude
 		}
 		commandDownloader.addAll(params);
 
