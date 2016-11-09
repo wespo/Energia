@@ -1,4 +1,4 @@
-#include "matlabSerial.h"
+#include "serial_array.h"
 
 // Constants for serial communication with Matlab
 // Size of header to describe number of bytes being sent

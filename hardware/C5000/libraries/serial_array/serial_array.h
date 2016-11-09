@@ -1,5 +1,5 @@
-#ifndef matlabSerial
-#define matlabSerial
+#ifndef serial_array
+#define serial_array
 
 /** \file
 
