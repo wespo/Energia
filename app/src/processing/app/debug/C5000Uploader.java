@@ -75,7 +75,7 @@ public class C5000Uploader extends Uploader{
 			commandDownloader.add(Base.getBasePath() + "pydude"); //was avrdude
 		}
 		else {
-			commandDownloader.add(Base.getBasePath() + "pydude"); //was avrdude
+			commandDownloader.add(Base.getBasePath() + "pydude.exe"); //was avrdude
 		}
 		commandDownloader.addAll(params);
 
