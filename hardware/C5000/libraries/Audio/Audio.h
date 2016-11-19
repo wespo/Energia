@@ -131,7 +131,8 @@ class AudioClass {
         int adcBufferSize;
         int dacBufferSize;
         int Audio(void);
-        int Audio(int process, int adc_buffer_size = I2S_DMA_BUF_LEN, int dac_buffer_size = I2S_DMA_BUF_LEN);
+        int Audio(int process, int buffer_size = I2S_DMA_BUF_LEN);
+        int Audio(int process, int adc_buffer_size, int dac_buffer_size);
         /** Audio input - left channel */
         Uint16 *audioInLeft[2];
         /** Audio input - right channel */

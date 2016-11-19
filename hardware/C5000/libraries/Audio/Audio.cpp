@@ -521,6 +521,12 @@ int AudioClass::Audio(void)
  *
  *  ===========================================================================
  */
+int AudioClass::Audio(int process, int buffer_size)
+{
+    Audio(process, buffer_size, buffer_size);
+
+}
+
 int AudioClass::Audio(int process, int adc_buffer_size, int dac_buffer_size)
 {
     CSL_Status status;
