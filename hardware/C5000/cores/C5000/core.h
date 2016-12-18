@@ -147,8 +147,23 @@ void fillLongBuf(void *buf, long value, unsigned short size);
 
 unsigned long getCpuClock();
 
+#define min(a,b) ((a)<(b)?(a):(b))
+#define max(a,b) ((a)>(b)?(a):(b))
+#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
+#define round(x)     ((x)>=0?(long)((x)+0.5):(long)((x)-0.5))
+#define radians(deg) ((deg)*DEG_TO_RAD)
+#define degrees(rad) ((rad)*RAD_TO_DEG)
+#define sq(x) ((x)*(x))
+
+
 #ifdef __cplusplus
 }
 #endif
+
+long map(long x, long in_min, long in_max, long out_min, long out_max);
+void randomSeed(int seed);
+int random(int max);
+int random(int min, int max);
+
 #endif
 

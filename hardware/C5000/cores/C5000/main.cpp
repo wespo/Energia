@@ -73,6 +73,26 @@ void oled_display(char *sring)
 }
 #endif
 
+long map(long x, long in_min, long in_max, long out_min, long out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+void randomSeed(int seed)
+{
+	srand(seed);
+}
+
+int random(int max)
+{
+	return rand()%max;
+}
+
+int random(int min, int max)
+{
+	return (rand()+min)%max;
+}
+
 /**
  *
  *  setupPll(int speed)
