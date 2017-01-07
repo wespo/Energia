@@ -1,4 +1,7 @@
-/*
+/*! @file Find.cpp
+ * 
+ *  @brief Finds a user-generated target string in a second user-generated string (from Serial)
+ *
  * Serial.find() Demo
  *
  * This demo first reads a string of length 5 and then keeps reading data from
@@ -13,14 +16,16 @@ void setup()
     Serial.begin(9600);
     Serial.println(" Serial.find() Demo!");
 
-    /* Ask for the target string from the User */
+    /*! Ask for the target string from the User */
     Serial.println("\r\nEnter the string to find (5 characters):");
     Serial.readBytes(targetString, 5);
 
-    targetString[5] = '\0';
+    /*! Add terminating char to string */
+	targetString[5] = '\0';
 
     Serial.println("Enter string in which the previous string should be looked for");
-    result = Serial.find(targetString);
+    /*! find the target string in the serial string */
+	result = Serial.find(targetString);
     if (result == TRUE)
     {
         Serial.println("\r\nString found");

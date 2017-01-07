@@ -1,10 +1,14 @@
-/*
+/*! @file Print.cpp
+ *
+ * @brief Prints different data types to Serial
+ *
  * Serial.println() Demo
  *
  * This demo prints a character, float value, integer and a string to the
  * Serial, using the respective variations of Serial.println() APIs
  */
 
+/// Prints to Serial using Serial.println()
 void setup()
 {
     char  charVal;

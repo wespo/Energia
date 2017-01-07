@@ -1,7 +1,8 @@
-/*
- * DIP switch read demo
+/*! @file readDIPSwitch.cpp
  *
- *  This program reads the DIP switch states on SW1 and displays on
+ *  @brief DIP switch read state demo
+ *
+ *  This program reads the DIP switch states on Switches 1-4 and displays on
  *  serial monitor
  *
  *  Note: This demo is specific for C5535 DSP shield.
@@ -15,9 +16,10 @@ void setup()
     Serial.begin(9600);
 }
 
+/// Read DIP switch states
 void loop()
 {
-  // Read the state of SW1
+    /// Read the state of SW1
     pinVal = digitalRead(SW1);
     if (pinVal)
     {
@@ -28,7 +30,7 @@ void loop()
         Serial.print("DIP Switch SW1 is OFF\n");
     }
 
-    // Read the state of SW2	
+    /// Read the state of SW2	
     pinVal = digitalRead(SW2);
     if (pinVal)
     {
@@ -39,7 +41,7 @@ void loop()
         Serial.print("DIP Switch SW2 is OFF\n");
     }
 
-    // Read the state of SW3
+    /// Read the state of SW3
     pinVal = digitalRead(SW3);
     if (pinVal)
     {
@@ -50,7 +52,7 @@ void loop()
         Serial.print("DIP Switch SW3 is OFF\n");
     }
 
-    // Read the state of SW4 
+    /// Read the state of SW4 
     pinVal = digitalRead(SW4);
     if (pinVal)
     {

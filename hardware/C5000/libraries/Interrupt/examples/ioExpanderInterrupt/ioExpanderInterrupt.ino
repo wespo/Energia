@@ -1,5 +1,6 @@
-/*
-  IO expander Interrupt Example
+/*! @file ioExpanderInterrupt.cpp
+
+  @brief IO expander Interrupt Example waits for interrupt on IO expander pins
 
   Configures interrupt for IO expander and waits for the interrupt
   on IO expander pins. Interrupt on IO expander can be generated
@@ -9,7 +10,7 @@
   May not work/compile for other platforms
 */
 
-/* Variable to indicate that the interrupt has occurred  */
+/*! Variable to indicate that the interrupt has occurred  */
 volatile int intr_flag = 0;
 
 unsigned int cmd[2];
@@ -19,7 +20,7 @@ unsigned int bytesAvail;
 unsigned int pinNum;
 unsigned int pinVal;
 
-/*
+/*!
  * ISR that clears the interrupt status and disables it, finally informs
  * the setup() API that DMA transfer has completed for the current DMA channel
  */
@@ -32,28 +33,28 @@ interrupt void INT1_isr(void)
 
 void setup()
 {
-    // Configure the state of pins to output
+    /// Configure the state of pins to output
     pinMode(E3, OUTPUT);
     pinMode(E1, OUTPUT);
     pinMode(E2, OUTPUT);
     pinMode(E0, OUTPUT);
 
-    // Configure IO pins as input 
+    /// Configure IO pins as input 
     for (pinNum = IO0; pinNum <= IO9; pinNum++)
     {
         pinMode(pinNum, INPUT);
     }
 
-    // Configure DIP switch pins as input
+    /// Configure DIP switch pins as input
     pinMode(SW1, INPUT);
     pinMode(SW2, INPUT);
     pinMode(SW3, INPUT);
     pinMode(SW4, INPUT);
 
-    // Init interrupt module
+    /// Init interrupt module
     initInterrupt(0x0000);
 
-    // Plugin the ISR to vector table and enbale interrupts 	
+    /// Plugin the ISR to vector table and enbale interrupts 	
     attachInterrupt(INTERRUPT_INT1, (INTERRUPT_IsrPtr)INT1_isr, 0);    
     enableInterrupt(INTERRUPT_INT1);
     Serial.begin(9600);
@@ -67,7 +68,7 @@ void loop()
         Serial.print("\nINT1 Interrupt is triggered!!\n");
         intr_flag = 0;
 
-        // Read all the input pin values to clear the intterupts
+        /// Read all the input pin values to clear the intterupts
         for (pinNum = IO0; pinNum <= IO9; pinNum++)
         {
             pinVal = digitalRead(pinNum);

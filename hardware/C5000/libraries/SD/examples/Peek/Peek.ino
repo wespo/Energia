@@ -1,7 +1,8 @@
-/*
-  File.peek() demo
+/*! @file Peek.cpp
 
-  Demo keep reading the same character from a file using File.peek() API
+    @brief   Demo keep reading the same character from a file using File.peek() API
+
+  File.peek() demo
 
   Note: SD Library requires SD card to be formatted in a specific
            format for proper operation. It is recommended to use
@@ -19,17 +20,18 @@ void setup()
     status = SD.begin();
     if(TRUE == status)
     {
+		/// write and open file
         fileHandle = SD.open("Peek.txt", FILE_WRITE);
         if (fileHandle)
         {
             fileHandle.print("Hello");
             fileHandle.seek(0);
 
-            /* Read the character using of File.peek() API */
+            /*! Read the character using of File.peek() API */
             Serial.print("Peek result is: ");
             Serial.println(fileHandle.peek());
 
-            /* Any number of calls to File.peek() will return the same
+            /*! Any number of calls to File.peek() will return the same
                character */
             Serial.print("Peek result is: ");
             Serial.println(fileHandle.peek());

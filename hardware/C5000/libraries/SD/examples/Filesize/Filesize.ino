@@ -1,8 +1,11 @@
-/*
+/*! @file Filesize.cpp
+    
+	@brief Find the size of a file on the SD card
+
   File Size Demo
 
   Demo to find the size of a file using File.size() API. This demo finds the
-  file size of the first file under root.
+  file size of each file under root.
 
   Note: SD Library requires SD card to be formatted in a specific
         format for proper operation. It is recommended to use
@@ -12,35 +15,40 @@
 
 #include "SD.h"
 
+/// find the filesize of the each file
 void setup()
 {
     Bool status;
     File fileHandle;
     char fileName[15];
     Serial.begin(9600);
-    status = SD.begin();
+    
+	/// Initialize SD Module
+	status = SD.begin();
 
     if (TRUE == status)
     {
-        fileHandle = SD.open("/");
+        /// open the first file        
+		fileHandle = SD.open("/");
         if (fileHandle)
         {
             while (fileHandle)
             {
                 if (!fileHandle.isDirectory())
                 {
-                    Serial.print("File Name: ");
+                    /*! Get the File name of the file */
+					Serial.print("File Name: ");
                     fileHandle.getName(fileName);
                     Serial.print(fileName);
 
-                     /* Get the size of the file using File.size() */
+                    /*! Get the size of the file using File.size() */
                     Serial.print("\tSize: ");
                     Serial.print(fileHandle.size());
                     Serial.println(" Bytes");
                     break;
                 }
 
-                /* Open next file in current directory using openNextFile() */
+                /*! Open next file in current directory using openNextFile() */
                 fileHandle = fileHandle.openNextFile();
             }
             fileHandle.close();

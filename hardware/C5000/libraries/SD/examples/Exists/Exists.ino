@@ -1,4 +1,7 @@
-/*
+/*! @file Exists.cpp
+
+    @brief Checks whether a file is on the SD card
+
   SD.exists() Demo
 
   This demo checks whether the file "DEMO.TXT" exists under the root directory
@@ -16,10 +19,12 @@ void setup()
 {
     Bool status;
     Serial.begin(9600);
-    status = SD.begin();
+
+    /// Initialize SD Module
+	status = SD.begin();
     if (TRUE == status)
     {
-        /* Check whether the file "DEMO.TXT" exists or not under root
+        /*! Check whether the file "DEMO.TXT" exists or not under root
            directory */
         if (SD.exists("DEMO.TXT"))
         {

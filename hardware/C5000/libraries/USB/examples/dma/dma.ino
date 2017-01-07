@@ -1,4 +1,6 @@
-/*
+/*! @dma.cpp
+
+    @brief Example demo to verify operation of USB module in DMA Mode
    USB - DMA mode example
    ----------------------------
    This example is to verify the operation of the USB module.This example
@@ -88,15 +90,15 @@ unsigned short    OtherSpeedcfgDesc[40] = {0x0709, 0x004A, 0x0201, 0xC001, 0x092
                                           };
 
 unsigned short    strDesc[4][20] = {
-                                    // string 0 English-USA
+                                    /// string 0 English-USA
                                     {0x0304, 0x0409},
-                                    // string 1 "Texas Instruments"
+                                    /// string 1 "Texas Instruments"
                                     {0x0324, 0x0045, 0x0054, 0x0041, 0x0058, 0x0020,
                                      0x0053, 0x004E, 0x0049, 0x0054, 0x0053, 0x0055,
                                      0x0052, 0x0045, 0x004D, 0x0054, 0x004E, 0x0053},
-                                    // string 2 "C5515"
+                                    /// string 2 "C5515"
                                     {0x030C, 0x0043, 0x0035, 0x0035, 0x0031, 0x0037},
-                                    // string 3 "00001"
+                                    /// string 3 "00001"
                                     {0x030C, 0x0030, 0x0030, 0x0030, 0x0030, 0x0031}
                                    };
 
@@ -336,13 +338,13 @@ void rxCompleteCallback(void           *hPipeOut,
 	}
 	else
 	{
-	    /* Do nothing for Ep0 */
+	    /*! Do nothing for Ep0 */
 	}
 }
 
 void suspendCallBack(int status)
 {
-    /* For future use */
+    /*! For future use */
 }
 
 

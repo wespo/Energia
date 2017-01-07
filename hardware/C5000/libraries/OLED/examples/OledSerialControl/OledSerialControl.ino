@@ -1,4 +1,7 @@
-/*
+/*! @file OledSerialControl.cpp
+
+    @brief Allows User to input to Serial to change OLED display status
+
   OLED Library
 
   Program which gives a menu list to the User to try out the different OLED
@@ -10,20 +13,21 @@
 void setup() {
     int  stopPgm;
     int  userOption;
-    char displayStr[13];
+    char displayStr[13]; /// limit of 13 characters on LED display
     Serial.begin(9600);
     Serial.println("\n OLED Library APIs TEST!");
 
-    disp.oledInit();          /* Initialize the OLED module */
-    disp.clear();             /* Clears the entire display screen */
-    disp.setline(0);          /* Set the current display line to Line0 */
-    disp.setOrientation(1);   /* Set orientation of the LCD to horizontal */
+    disp.oledInit();          /*! Initialize the OLED module */
+    disp.clear();             /*! Clears the entire display screen */
+    disp.setline(0);          /*! Set the current display line to Line0 */
+    disp.setOrientation(1);   /*! Set orientation of the LCD to horizontal */
 
     stopPgm = 0;
 
     do
     {
-        Serial.println(" ");
+        /*! Print initial instructions to Serial */
+		Serial.println(" ");
         Serial.println("----------------------------------");
         Serial.println("            OLED MENU             ");
         Serial.println("----------------------------------");
@@ -44,10 +48,12 @@ void setup() {
         Serial.println("----------------------------------");
         Serial.println("Enter your choice");
 
-        /* Read User Option, which will be in the format 00,01,02,...,13 */
-        userOption = Serial.read() - '0';
+        /*! Read User Option, which will be in the format 00,01,02,...,13 */
+        /// read 10s digit
+		userOption = Serial.read() - '0';
         userOption *= 10;
-        userOption += Serial.read() - '0';
+        /// read ones digit
+		userOption += Serial.read() - '0';
         Serial.print("Option Entered: ");
         Serial.print(userOption);
         Serial.println("\r\n");
@@ -56,81 +62,82 @@ void setup() {
         {
             case 0:
             case 1:
-                /* Turns off automatic scrolling of the LCD */
+                /*! Turns off automatic scrolling of the LCD */
                 disp.noAutoscroll();
 
-                /* Clear the requested Line of the display screen */
+                /*! Clear the requested Line of the display screen */
                 disp.clear(userOption);
 
-                /* Read string from Serial monitor untill User enters '$'
+                /*! Read string from Serial monitor untill User enters '$'
 		           character or length of string has reached 12 characters */
                 Serial.println("\r\nEnter the String (Max 12 characters or enter '$' at the end)");
                 Serial.readBytesUntil('$', displayStr, 12);
 
-                /* Set the current display line as requested by the User */
+                /*! Set the current display line as requested by the User */
                 disp.setline(userOption);
 
-                /* Displays the string entered by User on Serial monitor */
+                /*! Displays the string entered by User on Serial monitor */
                 disp.print(displayStr);
                 break;
 
             case 2:
                 disp.scrollDisplayLeft(0);
-                /* Scroll Line0 of display screen to left */
+                /*! Scroll Line0 of display screen to left */
                 break;
 
             case 3:
                 disp.scrollDisplayRight(0);
-                /* Scroll Line0 of display screen to right */
+                /*! Scroll Line0 of display screen to right */
                 break;
 
             case 4:
                 disp.scrollDisplayLeft(1);
-                /* Scroll Line1 of display screen to left */
+                /*! Scroll Line1 of display screen to left */
                 break;
 
             case 5:
                 disp.scrollDisplayRight(1);
-                /* Scroll Line1 of display screen to right */
+                /*! Scroll Line1 of display screen to right */
                 break;
 
             case 6:
                 disp.scrollDisplayLeft();
-                /* Scroll entire display screen to left */
+                /*! Scroll entire display screen to left */
                 break;
 
             case 7:
                 disp.scrollDisplayRight();
-                /* Scroll entire display screen to right */
+                /*! Scroll entire display screen to right */
                 break;
 
             case 8:
                 disp.noAutoscroll();
-                /* Turns off automatic scrolling of the LCD */
+                /*! Turns off automatic scrolling of the LCD */
                 break;
 
             case 9:
                 disp.flip();
-                /* Flips the screen vertically */
+                /*! Flips the screen vertically */
                 break;
 
             case 10:
                 disp.clear(0);
-                /* Clears Line0 of the display screen */
+                /*! Clears Line0 of the display screen */
                 break;
 
             case 11:
                 disp.clear(1);
-                /* Clears Line1 of the display screen */
+                /*! Clears Line1 of the display screen */
                 break;
 
             case 12:
                 disp.clear();
-                /* Clears the entire display screen */
+                /*! Clears the entire display screen */
                 break;
 
             case 13:
                 Serial.println("Exiting the Program");
+				/*! Stop the Program */
                 stopPgm = 1;
                 break;
 

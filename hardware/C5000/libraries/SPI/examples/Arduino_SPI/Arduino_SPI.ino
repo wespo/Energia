@@ -1,5 +1,7 @@
-/*
- * SPI and Arduino Communication demo
+/*! @file Arduino_SPI.cpp
+ *
+ * @brief SPI and Arduino Communication demo
+ *
  * This code should be flashed to the Arduino Uno board
  *
  * Sends data (value 0-2) to the DSP Shield to blink that particular LED on the DSP Shield
@@ -11,27 +13,27 @@
 
 #include <SPI.h>
 
-/* Configures Arduino as Slave for SPI communication with DSP Shield */
+/*! Configures Arduino as Slave for SPI communication with DSP Shield */
 void setup (void)
 {
-  /* Value should be sent on master in slave out (MISO) line */
+  /*! Value should be sent on master in slave out (MISO) line */
   pinMode(MISO, OUTPUT);
 
-  /* Configure SPI for Slave mode */
+  /*! Configure SPI for Slave mode */
   SPCR |= _BV(SPE);
 }
 
-/* Main loop - Send the value to DSP Shield to blink the LED */
+/*! Main loop - Send the value to DSP Shield to blink the LED */
 void loop (void)
 {
     int i;
 
     for (i = 0; i < 3; i++)
     {
-        /* Send the value */
+        /*! Send the value */
         SPDR = i;
 
-        /* Wait for the DSP Shield to read the data that was sent */
+        /*! Wait for the DSP Shield to read the data that was sent */
         while (!(SPSR & _BV(SPIF)))
             ;
     }

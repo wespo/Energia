@@ -1,4 +1,7 @@
-/*
+/*! @file RTC.cpp
+ * 
+ * @brief Configures RTC date/time & reads value
+ *
  * RTC Demo
  *
  * This demo configures the RTC date, time and reads the
@@ -13,6 +16,7 @@ RTCDate  rtcDateRead;
 RTCTime  rtcTimeRead;
 int      result;
 
+/// Configure RTC date/time
 void setup()
 {
     RTCDate  rtcDate;
@@ -22,7 +26,6 @@ void setup()
     Serial.println("Date Format - DD:MM:YY");
     Serial.println("Time Format - HH:MM:SS");
 
-    //Resets and configures RTC time registers, enables RTC interrupts
     RTC.init();
 
     rtcTime.hours = 10;
@@ -30,7 +33,6 @@ void setup()
     rtcTime.secs  = 0;
     rtcTime.msecs = 0;
 
-    // Set the RTC time
     result = RTC.setTime(&rtcTime);
     if (0 == result)
     {
@@ -40,14 +42,10 @@ void setup()
         rtcDate.month = 9;
         rtcDate.year  = 13;
 
-        // Set the RTC date
         result = RTC.setDate(&rtcDate);
         if (0 == result)
         {
-            RTC.start();  //RTC starts counting the time
 
-            delay(1000);  // Give some delay for the time to get updated
-            RTC.getDate(&rtcDateRead);  // Read the date
 
 	    Serial.print ("\nRTC Started");
             Serial.print ("\nCurrent Date - ");
@@ -62,9 +60,7 @@ void setup()
 
 void loop()
 {
-    if (0 == result)
     {
-        RTC.getTime(&rtcTimeRead);  //Read RTC time
 
         Serial.print ("\nCurrent Time - ");
         Serial.print (rtcTimeRead.hours);
@@ -73,6 +69,5 @@ void loop()
         Serial.print (":");
         Serial.print (rtcTimeRead.secs);
 
-        delay(1000); // Give some delay for the time to get updated
     }
 }

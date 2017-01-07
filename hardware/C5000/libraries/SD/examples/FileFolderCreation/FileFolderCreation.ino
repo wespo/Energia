@@ -1,5 +1,7 @@
-/*
-  File and Folder creation Demo
+/*! @file FileFolderCreation.cpp
+    
+	@brief Demo creates Files and Folders on SD card
+
 
   This demo creates the directory path "DIR1/DIR2/DIR3/DIR4/DIR5" and creates
   4 files under each directory in the path created before.
@@ -18,6 +20,7 @@
 
 #include "SD.h"
 
+/// Create Files & Folders on SD card
 void setup()
 {
     Bool status;
@@ -28,10 +31,11 @@ void setup()
     status = SD.begin();
     if (TRUE == status)
     {
-        /* Create the directory path using mkdir(char *dirPath)*/
+        /*! Create the directory path using mkdir(char *dirPath)*/
         dirCreation = SD.mkdir("DIR1/DIR2/DIR3/DIR4/DIR5");
         if (TRUE == dirCreation)
         {
+			/// if successful
             Serial.println("Directories \"DIR1/DIR2/DIR3/DIR4/DIR5\" created sucessfully");
         }
         else
@@ -64,24 +68,28 @@ void createFiles()
     filePath[0] = '\0';
     counter = 1;
 
-    /* Create 4 files under each directory in the path
+    /*! Create 4 files under each directory in the path
        'DIR1/DIR2/DIR3/DIR4/DIR5' */
     for (indexI = 0; indexI < 5; indexI++)
     {
         sprintf(filePath, "%sDIR%d/", filePath, (indexI + 1));
-        for (indexJ = 0; indexJ < 4; indexJ++)
+        /// Create 4 files -- dir1, dir2, dir3, dir4
+		for (indexJ = 0; indexJ < 4; indexJ++)
         {
             sprintf (fileName, "%sdir%d.txt", filePath, counter);
             sprintf (writeBuffer, "dir%d.txt: File under directory DIR%d", counter, (indexI + 1));
 
-            childHandle = SD.open(fileName, FILE_WRITE);
+            /// create new file
+			childHandle = SD.open(fileName, FILE_WRITE);
             if (childHandle)
             {
-                noOfBytesWritten = childHandle.print(writeBuffer);
+                /// write short string to new file
+				noOfBytesWritten = childHandle.print(writeBuffer);
                 childHandle.close();
 
                 if (0 == noOfBytesWritten)
                 {
+					/// if it fails to write
                     return;
                 }
                 counter++;

@@ -1,9 +1,11 @@
-/*
- * Timer instance 3 demo:
- * This test verifies whether the GPT3 is decrementing the counter or not.
- * GPT3 is configured with a count value of 0x10000 and pre-scaler divider
- * value of 2. GPT3 is started and counter value is read. After few
- * cycles of delay GPT3 counter value is read again. Both the counter values
+/*! @file Timer3
+ *
+ *  @brief Timer instance 3 demo: verifies if GPT2 decrements counter
+ * 
+ * This test verifies whether the GPT2 is decrementing the counter or not.
+ * GPT2 is configured with a count value of 0x10000 and pre-scaler divider
+ * value of 2. GPT2 is started and counter value is read. After few
+ * cycles of delay GPT2 counter value is read again. Both the counter values
  * are compared to verify whether the second count value is less
  * than the first counter value or not and the test passes if it is true.
  *
@@ -12,6 +14,7 @@
 
 #include <Timers.h>
 
+/// Set up timer, start it, verify that the count decreases
 void setup() {
     unsigned long           timeCnt1;
     unsigned long           timeCnt2;
@@ -20,26 +23,26 @@ void setup() {
     Serial.begin(9600);   
     Serial.print("\nGPT - Example for setPeriod() \n");
         
-    // Open the GPT module for GPT 2 instance 
+    /// Open the GPT module for GPT 2 instance 
     Timer.selectTimer(GPT2);
 
-    // Configure GPT period 
+    /// Configure GPT period 
     period = 0x10000;
     Timer.setPeriod(period);
 
-    // Start the Timer 
+    /// Start the Timer 
     Timer.start();
 
-    // Read the Timer Count 
+    /// Read the Timer Count 
     timeCnt1 = Timer.read();
 
-    // Give Some Delay 
+    /// Give Some Delay 
     delayMilliseconds(100);
 
-    // Read the Timer Count Again 
+    /// Read the Timer Count Again 
     timeCnt2 = Timer.read();
 
-    // Compare the timer count to verify whether the timer is counting or not 
+    /// Compare the timer count to verify whether the timer is counting or not 
     if (timeCnt2 >= timeCnt1)
     {
         Serial.print("GTP Time Count Compare Failed\n");
@@ -49,10 +52,10 @@ void setup() {
         Serial.print("GTP Time Count Compare Successful\n");
     }
 
-    // Stop The Timer 
+    /// Stop The Timer 
     Timer.stop();
 
-    // Close the GPT module 
+    /// Close the GPT module 
     Timer.close();
 
     Serial.print("\nEnd of Example!\n");

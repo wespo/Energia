@@ -1,5 +1,7 @@
-/*
- * Watchdog timer demo:
+/*! @file WatchdogTimer.cpp
+ *
+ * @brief Watchdog timer demo:
+ *
  * Configures watchdog timer, services it for some cycles,
  * then stops servicing the watchdog which should reset the
  * DSP shield board
@@ -7,6 +9,7 @@
 
 #include <Timers.h>
 
+/// Configures Timer and services it, then resets
 void setup() {
     WDT_Config              hwConfig;
     unsigned long           counter;
@@ -15,24 +18,24 @@ void setup() {
     hwConfig.counter  = 0xFFFF;
     hwConfig.prescale = 0x00FF;
 
-    // Open the WDTIM module 
+    /// Open the WDTIM module 
     Timer.setWdt(0, hwConfig);
 
-    // Start the watch dog timer 
+    /// Start the watch dog timer 
     Timer.startWdt();
 
     delayMilliseconds(10);
 
-    // Stop the watch dog timer 
+    /// Stop the watch dog timer 
     Timer.stopWdt();
 
-    // Start the watch dog timer 
+    /// Start the watch dog timer 
     Timer.startWdt();
 
     counter = 0;
     for (counter=0; counter<0x105; counter++)
     {
-        /* Servicing the watchdog timer for 256 cycles
+        /*! Servicing the watchdog timer for 256 cycles
            program should be running properly as long as
            watchdog is serviced */
         if (counter < 0x100)
@@ -43,7 +46,7 @@ void setup() {
         }
         else
         {
-            /* Watchdog servicing is stopped. 
+            /*! Watchdog servicing is stopped. 
                DSP shield shall be reset soon and message
                display on serial monitor shall be stopped */
             Serial.print("\r\nWDT Out of Service - ");

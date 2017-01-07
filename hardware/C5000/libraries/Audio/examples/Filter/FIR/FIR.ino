@@ -1,5 +1,7 @@
-/*
- * FIR Filter demo:
+/*! @file FIR.cpp
+ *
+ * @brief FIR Filter demo low-pass filters audio input
+ *
  * Reads data from codec audio IN, sends the data to FIR filter and 
  * finally sends the filtered audio to the codec OUT which can be 
  * listened on headphone.

@@ -1,7 +1,7 @@
-/*
+/*! @file Wire.cpp
+ * 
+ * @brief Toggles LEDs connected to IO expander in sequence
  * Wire Demo
- *
- * Toggles LEDs connected to IO expander in sequence
  */
 
 unsigned int cmd[2];
@@ -9,18 +9,19 @@ int ledValue = 0;
 int ledState = 0;
 void setup()
 {    
-    cmd[0] = 0x06;  // Command for IO expander configuration
+    cmd[0] = 0x06;  /// Command for IO expander configuration
     cmd[1] = 0x00;
-    Wire.beginTransmission(0x21);  // 0x21 is the address of IO expander for which LED are connected
-    Wire.write((unsigned int *)cmd,2);  //Configures IO expander port 0 pins as output
+    Wire.beginTransmission(0x21);  /// 0x21 is the address of IO expander for which LED are connected
+    Wire.write((unsigned int *)cmd,2);  /// Configures IO expander port 0 pins as output
     Wire.endTransmission();
-    delay(1000);  // Delay of 1sec
+    delay(1000);  /// Delay of 1sec
 }
 
+/// Toggle which of the 3 LEDs will be on 
 void loop()
 {
  
-    /* Below logic ensures 3 LEDs connected to IO expander are toggled in sequence
+    /*! Below logic ensures 3 LEDs connected to IO expander are toggled in sequence
        LED0 (pin 0) - Will be ON when 'ledValue' is '0'
        LED1 (pin 1) - Will be ON when 'ledValue' is '1'
        LED2 (pin 2) - Will be ON when 'ledValue' is '2'
@@ -33,8 +34,8 @@ void loop()
     Wire.write((unsigned int *)cmd,2);  
     Wire.endTransmission();
    
-    delay(1000);  // Delay of 1sec 
+    delay(1000);  /// Delay of 1sec 
     
     ledValue++;
-    ledValue = ledValue % 3;   // Value 'ledValue' never goes beyond 3
+    ledValue = ledValue % 3;   /// Value 'ledValue' never goes beyond 3
 }

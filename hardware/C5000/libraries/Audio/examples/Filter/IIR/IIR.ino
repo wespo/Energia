@@ -1,5 +1,7 @@
-/*
- * IIR Filter demo:
+/*! @file IIR.cpp
+ *
+ * @brief IIR Filter demo
+ *
  * This demo reads data from codec audio IN, sends the data
  * to IIR filter and finally sends the filtered audio to the codec OUT
  * which can be listened on headphone.
@@ -49,13 +51,13 @@ void setup()
     disp.flip();    
     disp.setline(1);
 
-    /* Clear the delay buffers, which will be used by the IIR filtering
+    /*! Clear the delay buffers, which will be used by the IIR filtering
        algorithm, These buffers need to be initialized to all zeroes in the
        beginning of the IIR filtering algorithm */
     IIRL.init(coeffs, ORDER);
     IIRR.init(coeffs, ORDER);             
 
-    /* Audio library is configured for non-loopback mode. Gives enough time for
+    /*! Audio library is configured for non-loopback mode. Gives enough time for
        processing in ISR */
     status = AudioC.Audio(TRUE);
     if (status == 0)

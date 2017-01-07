@@ -1,4 +1,7 @@
-/*
+/*! @file ReadWrite.cpp
+
+   @brief Reads data from Serial and writes to SD card
+
   File Read Write Demo
 
   This demo continuously reads data from serial monitor and writes
@@ -13,6 +16,7 @@ Note: SD Library requires SD card to be formatted in a specific
 
 #include "SD.h"
 
+/// Read from Serial and write to SD card 
 void setup()
 {
     Bool          status;
@@ -28,7 +32,8 @@ void setup()
     status = SD.begin();
     if (TRUE == status)
      {
-        fileHandle = SD.open("transfer.txt", FILE_WRITE);
+        /// Create and open the file to write to
+		fileHandle = SD.open("transfer.txt", FILE_WRITE);
         if (fileHandle)
         {
             Serial.println("\r\nEnter the Data to write to the file:");
@@ -37,7 +42,7 @@ void setup()
             index = 0;
             while (1)
             {
-                /* Reading data continuously from serial till user enters
+                /*! Reading data continuously from serial till user enters
                    "$end$" */
                 readString[index++] = Serial.read();
                 readString[index]   = '\0';
@@ -45,7 +50,7 @@ void setup()
                 {
                     readString[index - strlen(compareString)] = '\0';
 
-                    /* Write the data entered by the User on Serial using
+                    /*! Write the data entered by the User on Serial using
                        File.write(char *printString) */
                     fileHandle.write(readString);
                     break;
@@ -54,7 +59,7 @@ void setup()
                 if (512 == index)
                 {
                     readString[index] = '\0';
-                    /* Write the data entered by the User on Serial using
+                    /*! Write the data entered by the User on Serial using
                        File.write(char *printString) */
                        fileHandle.write(readString);
 
@@ -62,26 +67,30 @@ void setup()
                 }
             }
 
-            /* Displaying File contents before exiting the demo */
+			/*! Display size of file */            
             fileSize  = fileHandle.size();
             Serial.print("\r\nSize of the file after Writing the data that was entered is: ");
             Serial.println(fileSize);
 
+			/*! Displaying File contents before exiting the demo */
             fileHandle.seek(0);
             Serial.println("\r\n   The contents of the file are:");
             for (index = 0; index < fileSize; )
             {
-                /* Read the data entered written to the file using
+                /*! Read the data entered written to the file using
                    File.read(char *readString, length) */
                 if ((fileSize - index) > 512)
                 {
+					/// If the file size is greater than 512 bytes, can read up to 512 bytes at a time
                     bytesRead = fileHandle.read(readString, 512);
                 }
                 else
                 {
+					/// If the file is less than 512 bytes, read the number of bytes it has
                     bytesRead = fileHandle.read(readString, (fileSize - index));
                 }
 
+				/*! If no bytes were read, there was an error, otherwise print the string*/
                 if (0 == bytesRead)
                 {
                     Serial.println("\r\nError in reading from the file");

@@ -1,4 +1,7 @@
-/*
+/*! @file ParseFloat
+ * 
+ * @brief Reads data from serial to form a float value
+ *
  * Serial.parseFloat() Demo
  *
  * This demo keeps reading data from serial, until the User enters a float value
@@ -12,11 +15,12 @@ void setup()
 	Serial.begin(9600);
     Serial.println(" Serial.parseFloat() Demo!");
 
-    /* Ask for the input (float value) from the User */
+    /*! Ask for the input (float value) from the User (from serial) */
     Serial.println("\r\nEnter a float value ending with a non-numeric character (eg: 12.93a):");
     floatVal = Serial.parseFloat();
 
     Serial.print("The value you entered is : ");
+	/*! Print Float value to serial */
     Serial.println(floatVal);
 
     Serial.println("\r\nEnd of Serial.parseFloat() Demo!");

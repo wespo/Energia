@@ -1,7 +1,8 @@
-/*
-  OLED and Serial Library Example
+/*! @file OledSerialMsg.cpp
 
-  Reads Messages from the Serial port and Displays on the LCD
+  @brief Reads Messages from the Serial port and Displays on the LCD
+
+  OLED and Serial Library Example
 
   Note: 1. Length of Messages is limited to 12 characters because of the LCD
            size
@@ -15,10 +16,10 @@
 
 void setup()
 {
-    disp.oledInit();        /* Initialize the OLED module */
-    disp.setline(0);        /* Set the current display line to Line0 */
-    disp.setOrientation(1);    /* Set orientation of the LCD to horizontal */
-    disp.clear();            /* Clears the entire display screen */
+    disp.oledInit();        /*! Initialize the OLED module */
+    disp.setline(0);        /*! Set the current display line to Line0 */
+    disp.setOrientation(1);    /*! Set orientation of the LCD to horizontal */
+    disp.clear();            /*! Clears the entire display screen */
 }
 
 void loop()
@@ -32,7 +33,7 @@ void loop()
     index = 0;
     do
     {
-		/* Loop to read string from Serial monitor untill user enters '$'
+		/*! Loop to read string from Serial monitor until user enters '$'
 		   character or length of string has reached 12 characters */
         readChar = Serial.read();
         dispString[index++] = readChar;
@@ -40,14 +41,17 @@ void loop()
 
     if (readChar == '$')
     {
-        dispString[index - 1] = '\0';
+        ///replace $ char with terminating char /0
+		dispString[index - 1] = '\0';
     }
 
-    Serial.print("The message entered is: ");
+    /// Display to Serial
+	Serial.print("The message entered is: ");
     Serial.println(dispString);
 
-    Serial.println("Displaying message on LCD");
-    disp.clear();           /* Clears the entire display screen */
-    disp.print(dispString); /* Displays the string entered by User on Serial
+    /// Display on LCD
+	Serial.println("Displaying message on LCD");
+    disp.clear();           /*! Clears the entire display screen */
+    disp.print(dispString); /*! Displays the string entered by User on Serial
                                monitor */
 }

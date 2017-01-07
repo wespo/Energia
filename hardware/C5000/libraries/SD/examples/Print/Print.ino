@@ -1,4 +1,6 @@
-/*
+/*! @file Print.cpp
+
+  @brief Writes different data types to a file on SD card
   File.print() Demo
 
   This demo writes a character, string, integer value, float value and an
@@ -13,6 +15,7 @@
 
 #include "SD.h"
 
+// Creates and opens a file on the SD card, writes to it
 void setup()
 {
     Bool   status;
@@ -32,56 +35,56 @@ void setup()
         fileHandle = SD.open("Print.txt", FILE_WRITE);
         if (fileHandle)
         {
-            /* Writing a character to the file */
+            /*! Writing a character to the file */
             charvalue = 'A';
             fileHandle.println("char Character: ");
             fileHandle.println(charvalue);
 
-            /* Writing a String to the file */
+            /*! Writing a String to the file */
             fileHandle.println("\r\n");
             fileHandle.println("char *String: ");
             fileHandle.println(String);
 
-            /* Writing an ineteger to the file */
+            /*! Writing an ineteger to the file */
             intvalue = 1234;
             fileHandle.println("\r\n");
             fileHandle.println("Int value: ");
             fileHandle.println(intvalue);
 
-            /* Writing a floating point value to the file */
+            /*! Writing a floating point value to the file */
             floatvalue = 45.90;
             fileHandle.println("\r\n");
             fileHandle.println("Float value: ");
             fileHandle.println(floatvalue);
 
-            /* Writing a long integer value to the file */
+            /*! Writing a long integer value to the file */
             longvalue = 987654321;
             fileHandle.println("\r\n");
             fileHandle.println("Long value: ");
             fileHandle.println(longvalue);
 
-            /* Writing a double precision float value to the file */
+            /*! Writing a double precision float value to the file */
             doublevalue = 123456.976;
             fileHandle.println("\r\n");
             fileHandle.println("Double value: ");
             fileHandle.println(doublevalue);
 
-            /* Writing a 32 bit integer in decimal format to the file */
+            /*! Writing a 32 bit integer in decimal format to the file */
             fileHandle.println("\r\n");
             fileHandle.println("Decimal value: ");
             fileHandle.println(longvalue, FILE_DEC);
 
-            /* Writing a 32 bit integer in octal format to the file */
+            /*! Writing a 32 bit integer in octal format to the file */
             fileHandle.println("\r\n");
             fileHandle.println("Octal value: ");
             fileHandle.println(longvalue, FILE_OCT);
 
-            /* Writing a 32 bit integer in hexa decimal format to the file */
+            /*! Writing a 32 bit integer in hexa decimal format to the file */
             fileHandle.println("\r\n");
             fileHandle.println("HexaDecimal value: ");
             fileHandle.println(longvalue, FILE_HEX);
 
-            /* Writing a 32 bit integer in binary format to the file */
+            /*! Writing a 32 bit integer in binary format to the file */
             fileHandle.println("\r\n");
             fileHandle.println("Binary value: ");
             fileHandle.println(longvalue, FILE_BIN);

@@ -1,7 +1,10 @@
-/*
+/*! @file Position.cpp
+ 
+    @brief Print position of file cursor
+
   File Cursor Position demo
 
-  Demo to print the current position of the file file cursor using File.seek()
+  Demo to print the current position of the file cursor using File.seek()
   and File.position() APIs
 
   Note: SD Library requires SD card to be formatted in a specific
@@ -13,6 +16,7 @@
 
 #include "SD.h"
 
+/// Opens SD, prints position of file cursor
 void setup()
 {
     Bool          result;
@@ -32,7 +36,7 @@ void setup()
 
             fileHandle = SD.open("Position.txt");
 
-            /* Seek to the beginning of the file and display the current
+            /*! Seek to the beginning of the file and display the current
                position */
             Serial.println("  Seeking to the beginning of the file");
             result = fileHandle.seek(0);
@@ -42,7 +46,7 @@ void setup()
             Serial.println(position);
 
 
-            /* Seek to the end of the file and display the current position */
+            /*! Seek to the end of the file and display the current position */
             Serial.println("\r\n  Seeking to the end of the file");
             fileSize = fileHandle.size();
             result = fileHandle.seek(fileSize - 1);

@@ -1,5 +1,6 @@
-/*
-  Directory Browse Demo
+/*! @file DisplayContents.cpp
+
+  @brief Directory Browse Demo: query directory & subdirectories
 
   In this demo a file handle to the root directory is obtained. The
   contents of the root directory and its subsequent sub-directories are
@@ -13,6 +14,7 @@
 
 #include "SD.h"
 
+/// recursively query contents of directory, calling display on subdirectories
 void display(void *Handle)
 {
     File *parentHandle;
@@ -25,12 +27,13 @@ void display(void *Handle)
 
     while (1)
     {
-        /* Open next file in current directory using File.openNextFile() API */
+        /*! Open next file in current directory using File.openNextFile() API */
         childHandle = parentHandle->openNextFile();
         if (childHandle)
         {
             if (childHandle.isDirectory())
             {
+				/// If the child is a directory, set up to query the files it contains
                 Serial.print("\n\rDirectory Name:");
                 childHandle.getName(fileName);
                 Serial.println(fileName);
@@ -38,13 +41,14 @@ void display(void *Handle)
                 Serial.print(fileName);
                 Serial.println(" ");
 
-                /* Since its a directory display the contents under the
+                /*! Since its a directory display the contents under the
                    respective directory */
                 display(&childHandle);
                 directorycount++;
             }
             else
             {
+				/// If the child is a file, print the name and size 
                 Serial.print("File Name: ");
                 childHandle.getName(fileName);
                 Serial.print(fileName);
@@ -58,6 +62,7 @@ void display(void *Handle)
         }
         else
         {
+			/// print the total number of contained files and directories at the end
             Serial.print("  No more Files Under the directory:");
             parentHandle->getName(fileName);
             Serial.println(fileName);
@@ -71,6 +76,7 @@ void display(void *Handle)
     }
 }
 
+/// Open SD card, get file handle to Root directory
 void setup()
 {
     Bool status;
@@ -79,12 +85,12 @@ void setup()
     status = SD.begin();
     if (TRUE == status)
     {
-        /* Get a File handle to the Root directory */
+        /*! Get a File handle to the Root directory */
         fileHandle = SD.open("/");
         if (fileHandle)
         {
             Serial.println("  Contents of the Root Directory are:");
-
+			/// query subdirectories
             display(&fileHandle);
         }
     }

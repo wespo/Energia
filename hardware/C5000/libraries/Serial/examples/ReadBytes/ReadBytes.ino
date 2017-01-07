@@ -1,20 +1,27 @@
-/*
+/*! @file ReadBytes.cpp
+ *  
+ *  @brief Reads a string of length 5 from the Serial and displays it back on the Serial
+ * 
  * Serial.readBytes() Demo
  *
- * This demo reads a string of length 5 from the Serial and displays it back on
- * the Serial
  */
+
+/*! Setup Serial to read user input & print values */
 void setup()
 {
-    char  readString[50];
+    /*! Initialize buffer to hold user input */
+	char  readString[50];
 	Serial.begin(9600);
-    Serial.println("\r\nSerial.readBytes() Demo!\r\n");
+    /*! Setup Serial to prompt user for input string */
+	Serial.println("\r\nSerial.readBytes() Demo!\r\n");
 
     Serial.println("\r\nEnter a string of length 5 bytes:");
 
-    Serial.readBytes(readString, 5);
+    /*! Read string from serial */
+	Serial.readBytes(readString, 5);
     Serial.print("The string you entered is: ");
-    Serial.write(readString, 5);
+    /*! Print string to serial */
+	Serial.write(readString, 5);
 
     Serial.println("\r\n\r\nEnd of Serial.readbytes() Demo!!");
 
