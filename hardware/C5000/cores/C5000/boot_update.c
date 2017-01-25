@@ -183,7 +183,7 @@ Uint16 updateBootLoader(void)
 
 #ifdef BOARD_DSPSHIELD_V2
     /* Read the command to update the Bootloader */
-    status = read_UART(hUart, buffer, COMMAND_SIZE_LENGTH, 2500,
+    status = read_UART(hUart, buffer, COMMAND_SIZE_LENGTH, 3500,
 	                   &bytesRead);
 #elif defined BOARD_DSPSHIELD_V1
     /* Read the command to update the Bootloader */
@@ -387,7 +387,7 @@ Uint16 updateBootLoader(void)
 
 #ifdef USE_MSEC_WAIT_FOR_UART
 		/* Dummy read to flush data */
-		status = read_UART(hUart, buffer, 64, 10, &bytesRead);
+		status = read_UART(hUart, buffer, 64, 30, &bytesRead);
 #else
 		/* Dummy read to flush data */
 		status = read_UART(hUart, buffer, 64, 0xFFFF, &bytesRead);
@@ -402,7 +402,7 @@ Uint16 updateBootLoader(void)
 
 		//read file length
 #ifdef USE_MSEC_WAIT_FOR_UART
-		status = read_UART(hUart, buffer, 4, 100, &bytesRead);
+		status = read_UART(hUart, buffer, 4, 300, &bytesRead);
 #else
 		status = read_UART(hUart, buffer, 4, 0xFFFF, &bytesRead);
 #endif	
@@ -414,7 +414,7 @@ Uint16 updateBootLoader(void)
 		bytesRead = 0;
 #ifdef USE_MSEC_WAIT_FOR_UART
 /* Dummy read to flush data */
-		status = read_UART(hUart, buffer, 64, 10, &bytesRead);
+		status = read_UART(hUart, buffer, 64, 30, &bytesRead);
 #else
 		/* Dummy read to flush data */
 		status = read_UART(hUart, buffer, 64, 0xFFFF, &bytesRead);
@@ -441,7 +441,7 @@ Uint16 updateBootLoader(void)
 			}
 #ifdef USE_MSEC_WAIT_FOR_UART
 	        /* Reading the bootloader contents, in chunks of 512 bytes each */
-	        status = read_UART(hUart, buffer, UART_BUFFER_SIZE, 20,
+	        status = read_UART(hUart, buffer, UART_BUFFER_SIZE, 30,
 			                     &bytesRead);
 #else
 	        /* Reading the bootloader contents, in chunks of 512 bytes each */
@@ -490,14 +490,14 @@ Uint16 updateBootLoader(void)
 
 #ifdef USE_MSEC_WAIT_FOR_UART
 		/* Dummy read to flush data */
-		status = read_UART(hUart, buffer, 64, 10, &bytesRead);
+		status = read_UART(hUart, buffer, 64, 30, &bytesRead);
 #else
 		/* Dummy read to flush data */
 		status = read_UART(hUart, buffer, 64, 0xFFFF, &bytesRead);
 #endif
 	            //read final checksum
 		#ifdef USE_MSEC_WAIT_FOR_UART
-				status = read_UART(hUart, buffer, 4, 50, &bytesRead);
+				status = read_UART(hUart, buffer, 4, 150, &bytesRead);
 		#else
 				status = read_UART(hUart, buffer, 4, 0xFFFF, &bytesRead);
 		#endif	
@@ -716,7 +716,7 @@ static Int16 read_UART(CSL_UartHandle hUart,
 
 #ifndef DISABLE_LED_BLINK_FOR_PROGRAM_WAIT
 
-					if((msecs%100) == 0)
+					if((msecs%200) == 0)
 					{
 						if(ledBlinkCnt == 4)
 						{
