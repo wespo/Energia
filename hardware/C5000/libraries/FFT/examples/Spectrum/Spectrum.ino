@@ -25,6 +25,7 @@ void processAudio() //put your signal processing code here.
   {
     copyShortBuf(AudioC.inputLeft, fftBuf, I2S_DMA_BUF_LEN);
     rfft(fftBuf,I2S_DMA_BUF_LEN,SCALE);
+    fftReady = 1;
   }
   
 }
