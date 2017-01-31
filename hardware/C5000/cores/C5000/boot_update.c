@@ -151,8 +151,8 @@ Uint16 updateBootLoader(void)
 
     /* Initialising the Config structure used to configure the UART */
     uartSetup.clkInput = sysClk;
-    //uartSetup.baud = 115200;
-    uartSetup.baud = 57600;
+    uartSetup.baud = 115200;
+    //uartSetup.baud = 57600;
     uartSetup.wordLength = CSL_UART_WORD8;
     uartSetup.stopBits = 0;
     uartSetup.parity = CSL_UART_DISABLE_PARITY;
@@ -372,8 +372,8 @@ Uint16 updateBootLoader(void)
         }
 
 		/* Increase UART baudrate for data transfer */
-		uartSetup.baud = 115200;
-		status = UART_setupBaudRate(hUart, sysClk, uartSetup.baud);
+		//uartSetup.baud = 115200;
+		//status = UART_setupBaudRate(hUart, sysClk, uartSetup.baud);
 		if(status != CSL_SOK)
 		{
 			ATA_delete(pAtaFile);
@@ -383,14 +383,14 @@ Uint16 updateBootLoader(void)
 	    buffer = (char *)uartRdWrBuffer;
 		ledOn = 1;
 
-		delay_msecs(500);
+		//delay_msecs(500);
 
 #ifdef USE_MSEC_WAIT_FOR_UART
 		/* Dummy read to flush data */
-		status = read_UART(hUart, buffer, 64, 30, &bytesRead);
+		//status = read_UART(hUart, buffer, 64, 30, &bytesRead);
 #else
 		/* Dummy read to flush data */
-		status = read_UART(hUart, buffer, 64, 0xFFFF, &bytesRead);
+		//status = read_UART(hUart, buffer, 64, 0xFFFF, &bytesRead);
 #endif
 		bytesReceived = 0;
 
@@ -414,10 +414,10 @@ Uint16 updateBootLoader(void)
 		bytesRead = 0;
 #ifdef USE_MSEC_WAIT_FOR_UART
 /* Dummy read to flush data */
-		status = read_UART(hUart, buffer, 64, 30, &bytesRead);
+		//status = read_UART(hUart, buffer, 64, 30, &bytesRead);
 #else
 		/* Dummy read to flush data */
-		status = read_UART(hUart, buffer, 64, 0xFFFF, &bytesRead);
+		//status = read_UART(hUart, buffer, 64, 0xFFFF, &bytesRead);
 #endif
 		bytesRead = 0;
 		long checksum = 0;
@@ -490,10 +490,10 @@ Uint16 updateBootLoader(void)
 
 #ifdef USE_MSEC_WAIT_FOR_UART
 		/* Dummy read to flush data */
-		status = read_UART(hUart, buffer, 64, 30, &bytesRead);
+		//status = read_UART(hUart, buffer, 64, 30, &bytesRead);
 #else
 		/* Dummy read to flush data */
-		status = read_UART(hUart, buffer, 64, 0xFFFF, &bytesRead);
+		//status = read_UART(hUart, buffer, 64, 0xFFFF, &bytesRead);
 #endif
 	            //read final checksum
 		#ifdef USE_MSEC_WAIT_FOR_UART
