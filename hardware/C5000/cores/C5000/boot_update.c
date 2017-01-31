@@ -183,7 +183,7 @@ Uint16 updateBootLoader(void)
 
 #ifdef BOARD_DSPSHIELD_V2
     /* Read the command to update the Bootloader */
-    status = read_UART(hUart, buffer, COMMAND_SIZE_LENGTH, 3500,
+    status = read_UART(hUart, buffer, COMMAND_SIZE_LENGTH, 4000,
 	                   &bytesRead);
 #elif defined BOARD_DSPSHIELD_V1
     /* Read the command to update the Bootloader */
