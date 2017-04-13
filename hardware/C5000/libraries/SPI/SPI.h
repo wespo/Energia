@@ -41,12 +41,25 @@
 #ifndef _SPI_H_
 #define _SPI_H_
 
+#include "core.h"
 #include <stdio.h>
-#include "csl_spi.h"
+
+#ifdef BOARD_DSPSHIELD_V2
+
+#include <csl_mcspi.h>
+#include <csl_general.h>
+#include <csl_intc.h>
+#include "csl_gpio.h"
+#include "csl_mcspi.h"
+#include "csl_sysctrl.h"
+
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define ENABLE_SERIAL_MSGS
 
 /** Macro for SPI clock divider value 2 */
 #define SPI_CLOCK_DIV2   (2)
@@ -73,6 +86,7 @@ extern "C" {
 /** Macro to indicate SPI mode 3 */
 #define SPI_MODE3 (3)
 
+
 /**< The above modes are for the following Clock Polarity(CPOL) and Clock
  *   Phase(CPHA) Selections
  *-----------------------
@@ -90,7 +104,54 @@ extern "C" {
 #define MSBFIRST (1) /**< Macro to indicate the Order of Data transfer as MSB
                           first */
 
+#define SPI_MASTER 1
+#define SPI_SLAVE 0
+
+#ifdef BOARD_DSPSHIELD_V2
 /**
+ * \brief SPI Class
+ *
+ *  Contains prototypes for functions in SPI DSP API library
+ */
+class SPI_Class_5517
+{
+    private:
+        McSPI_Config     McSPIHwConfig;
+        CSL_McSpiHandle  hMcspi;
+        CSL_McSpiObj     McSpiObj;
+        unsigned long tx_value;
+        unsigned long rx_value;
+        int order;
+        mcSPIRead(unsigned long &value);
+        mcSPIWrite(unsigned long value);
+    public:
+        void begin(int mode=SPI_MASTER);
+        void end ();
+        void setClockDivider (int divider);
+        void setDataMode (int mode);
+        void setLoopBackMode(int value);
+        void setBitOrder(int order);
+        int setCSPin(int order);
+        
+        int transfer16 (int value);
+        int write (unsigned int buffer[], int length);
+        int read (unsigned int buffer[], int length);
+        
+        unsigned long transfer (unsigned long value);
+        int write (unsigned long buffer[], int length);
+        int read (unsigned long buffer[], int length);
+        
+
+        int setWordLength(unsigned int length);
+        int setDataDelay(unsigned int delay);
+} ;
+
+extern SPI_Class_5517 SPI;
+/**< SPI class instance extern which can be used by application programs
+ *   to access SPI DSP APIs
+ */
+#else /* BOARD_DSPSHIELD_V2 */
+ /**
  * \brief SPI Class
  *
  *  Contains prototypes for functions in SPI DSP API library
@@ -121,6 +182,7 @@ extern SPI_Class SPI;
 /**< SPI class instance extern which can be used by application programs
  *   to access SPI DSP APIs
  */
+#endif /* BOARD_DSPSHIELD_V2 */
 
 #ifdef __cplusplus
 }

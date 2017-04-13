@@ -1,40 +1,65 @@
-/*! @file Arduino_SPI.cpp
- *
- * @brief SPI and Arduino Communication demo
- *
- * This code should be flashed to the Arduino Uno board
- *
- * Sends data (value 0-2) to the DSP Shield to blink that particular LED on the DSP Shield
- *
- * If value sent is 0, LED0 will be ON on DSP Shield
- * If value sent is 1, LED1 will be ON on DSP Shield
- * If value sent is 2, LED2 will be ON on DSP Shield
- */
+
+// Written by Nick Gammon
+// February 2011
+
 
 #include <SPI.h>
 
-/*! Configures Arduino as Slave for SPI communication with DSP Shield */
+char buf[200];
+volatile byte pos;
+volatile boolean process_it;
+
 void setup (void)
 {
-  /*! Value should be sent on master in slave out (MISO) line */
+  Serial.begin (115200);   // debugging
+  Serial.println("Receiving...");
+  // turn on SPI in slave mode
+  SPCR |= bit (SPE);
+  SPI.setDataMode(SPI_MODE3);
+  SPI.setBitOrder(MSBFIRST);
+
+  // have to send on master in, *slave out*
   pinMode(MISO, OUTPUT);
+  
+  // get ready for an interrupt 
+  pos = 0;   // buffer empty
+  process_it = false;
 
-  /*! Configure SPI for Slave mode */
-  SPCR |= _BV(SPE);
-}
+  // now turn on interrupts
+  SPI.attachInterrupt();
 
-/*! Main loop - Send the value to DSP Shield to blink the LED */
+}  // end of setup
+
+// SPI interrupt routine
+ISR (SPI_STC_vect)
+{
+  byte c = SPDR;  // grab byte from SPI Data Register
+  // add to buffer if room
+  if (pos < (sizeof (buf) - 1))
+  {
+    buf[pos++] = c;
+  }
+    
+  // example: newline means time to process buffer
+  if (c == '\n')
+  {
+    process_it = true;
+  }
+      
+}  // end of interrupt routine SPI_STC_vect
+
+// main loop - wait for flag set in interrupt routine
 void loop (void)
 {
-    int i;
-
-    for (i = 0; i < 3; i++)
+  if (process_it)
+  {
+    Serial.print("Recv'd: ");
+    for(int i = 0; i < pos; i++)
     {
-        /*! Send the value */
-        SPDR = i;
-
-        /*! Wait for the DSP Shield to read the data that was sent */
-        while (!(SPSR & _BV(SPIF)))
-            ;
+      Serial.print(buf[i]);
     }
-}
+    pos = 0;
+    process_it = false;
+  }  // end of flag set
+    
+}  // end of loop
