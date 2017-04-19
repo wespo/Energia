@@ -1,8 +1,6 @@
-// Original Code written by Nick Gammon February 2011
-// Modified by William Esposito for C5517 communication April 2017
-// To use, run DSP_SPI_Master.ino on DSP Shield and this program on an Arduino.
-// The DSP Shield will send the printable ASCII character set via SPI
-// And this program will print it to the Serial terminal.
+
+// Written by Nick Gammon
+// February 2011
 
 
 #include <SPI.h>

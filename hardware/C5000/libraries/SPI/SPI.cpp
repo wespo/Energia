@@ -550,7 +550,7 @@ unsigned long SPI_Class_5517::transfer (unsigned long value)
 int SPI_Class_5517::transfer16 (int value)
 {
     unsigned long bufVal = (unsigned long) value;
-    transfer(value);
+    value = transfer(bufVal)>>16;
     return value;
 }
 /** ===========================================================================
@@ -655,7 +655,7 @@ int SPI_Class_5517::read (unsigned int *buffer, int length)
 {   
     for(int i = 0; i < length; i++)
     {
-        buffer[i] = transfer16(0x0000);
+        buffer[i] = (int)transfer(0x00000000) & 0x00FF;
     }
 }
 
