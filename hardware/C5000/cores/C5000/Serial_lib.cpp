@@ -163,6 +163,9 @@ static Bool checkBaudRate(long baudRate)
         case 38400:
         case 57600:
         case 115200:
+        case 230400:
+        case 250000:
+        case 500000:
             retValue = TRUE;
             break;
     }
