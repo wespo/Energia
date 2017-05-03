@@ -137,7 +137,7 @@ void SPI_Class_5517::begin (int mode)
     hMcspi->McSPIHwConfig.duplex     = McSPI_FULL_DUPLEX;
     hMcspi->McSPIHwConfig.wLen       = McSPI_WORD_LENGTH_8;
     hMcspi->McSPIHwConfig.dataDelay  = McSPI_DATA_DLY4;
-    hMcspi->McSPIHwConfig.ClkDiv     = CSL_MCSPI_CH0CONFL_CLKD_DIV64;//4;
+    hMcspi->McSPIHwConfig.ClkDiv     = CSL_MCSPI_CH0CONFL_CLKD_DIV4;//64;//4;
     hMcspi->McSPIHwConfig.clkPh      = McSPI_CLK_PH_EVEN_EDGE;   //even edge ,polarity low important
     hMcspi->McSPIHwConfig.clkPol     = McSPI_CLKP_LOW;
     hMcspi->ch                       = McSPI_CS_NUM_0;
@@ -513,7 +513,7 @@ unsigned long SPI_Class_5517::transfer (unsigned long value)
     {
         CSL_MCSPI_REGS->CH0TXL = (Uint16)value;
         CSL_MCSPI_REGS->CH0TXU = (Uint16)(value>>16) ;
-        delayMicroseconds(10); //time for transmission
+        delayMicroseconds(1); //time for transmission
 
         while(!(CSL_MCSPI_REGS->CH0STATL & CSL_MCSPI_CH0STATL_EOT_MASK)); // WAIT till END of Txn
 
