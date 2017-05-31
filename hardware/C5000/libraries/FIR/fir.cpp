@@ -60,15 +60,21 @@
  * Returns: int overFlow -> 0 : 32 bit Overflow hasn't occurred
  *                          1 : 32 bit Overflow has occurred
  */
+void FIRClass::init(int *coeffsLoc, int coeffsLen, int *bufferLoc)
+{
+  noOfCoeffs = coeffsLen;
+  coeffs = coeffsLoc;
+  delayBuffer = bufferLoc;
+}
+
 void FIRClass::init(int *coeffsLoc, int coeffsLen)
 {
   noOfCoeffs = coeffsLen;
   coeffs = coeffsLoc;
   delete[] delayBuffer;
-
   delayBuffer = new int [coeffsLen+2];
-}
 
+}
 int FIRClass::filter(int *input, int *output, int len)
 {
     int overFlow;

@@ -47,6 +47,7 @@
 
 class FIRClass {
    public:
+      void init(int *coeffsLoc, int coeffsLen, int *bufferLoc);
       void init(int *coeffsLoc, int coeffsLen);
       int filter(int *input, int *output, int len);
    private:
